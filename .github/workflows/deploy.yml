@@ -9,21 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # 修复：@v4 而不是 @w4
         
       - name: Verify index.html exists
         run: |
+          # 确保有 index.html 文件
           if [ ! -f index.html ]; then
-            echo "::error::index.html file not found! Current files:"
+            echo "::error::错误：找不到 index.html 文件！"
             ls -la
             exit 1
           fi
-          echo "index.html found successfully"
+          echo "index.html 文件存在"
           
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v3  # 修复：正确的操作名称
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
-          # 可选：如果您有自定义域名
-          # cname: your-domain.com
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # 修复：正确的 secrets 语法
+          publish_dir: ./  # 修复：正确的参数名
+          # cname: your-domain.com # 可选，如果您有自定义域名
