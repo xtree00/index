@@ -7,24 +7,24 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10  # 增加超时时间
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          fetch-depth: 0  # 获取完整历史记录
           
-      - name: Install dependencies
-        run: npm install gh-pages --save-dev
-        
-      - name: Configure Git
+      - name: Setup Git config
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           
       - name: Deploy to GitHub Pages
-        run: npx gh-pages -d . -b gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          force_orphan: true  # 确保干净部署
+          full_commit_message: "Deploy via GitHub Actions"
+          disable_nojekyll: true
