@@ -1,0 +1,4834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIG游戏库管理工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2ecc71;
+            --dark: #1e2a38;
+            --darker: #15202b;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 15px;
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(30, 42, 56, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+        
+        header {
+            background: var(--darker);
+            padding: 20px 25px;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: white;
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--gray);
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 8px auto;
+            line-height: 1.4;
+        }
+        
+        .controls {
+            padding: 15px;
+            background: var(--dark);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .control-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .card {
+            background: rgba(40, 55, 71, 0.8);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255,255,255,0.05);
+            flex: 1;
+            min-width: 280px;
+            max-width: 400px;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .card-title i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        
+        .capacity-selector {
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+        }
+        
+        .capacity-option {
+            flex: 1;
+            min-width: 70px;
+            text-align: center;
+            padding: 8px 5px;
+            border-radius: 8px;
+            background: rgba(30, 45, 60, 0.7);
+            border: 2px solid rgba(52, 152, 219, 0.3);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .capacity-option:hover {
+            background: rgba(52, 152, 219, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .capacity-option.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .capacity-option .size {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 3px;
+        }
+        
+        .capacity-option .actual {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .search-bar {
+            position: relative;
+            width: 100%;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 10px 14px 10px 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            background: rgba(30, 45, 60, 0.7);
+            color: white;
+            transition: var(--transition);
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+        }
+        
+        .search-bar i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 1rem;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 10px;
+            margin: 0 5px;
+            min-width: 160px;
+        }
+        
+        .stat-item {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: rgba(30, 45, 60, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-item .value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-item .label {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        }
+        
+        .btn-secondary {
+            background: rgba(40, 55, 71, 0.8);
+            color: var(--light);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(52, 152, 219, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        .result-container {
+            background: rgba(40, 55, 71, 0.9);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 0 15px 15px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: none;
+        }
+        
+        .result-container h3 {
+            margin-bottom: 12px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+        }
+        
+        #resultText {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            background: rgba(30, 45, 60, 0.7);
+            color: white;
+        }
+        
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        
+        .content {
+            padding: 15px;
+        }
+        
+        .games-section {
+            margin-top: 15px;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.85rem;
+        }
+        
+        th {
+            background-color: rgba(30, 45, 60, 0.7);
+            font-weight: 600;
+            color: var(--primary);
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .game-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+        
+        .game-size {
+            font-weight: 500;
+            color: var(--primary);
+            text-align: right;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            color: var(--gray);
+            font-size: 0.8rem;
+            margin-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1100px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .card {
+                min-width: 100%;
+                max-width: 100%;
+            }
+            
+            .actions {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+                font-size: 13px;
+            }
+            
+            header {
+                padding: 12px;
+            }
+            
+            .controls {
+                padding: 10px;
+                gap: 8px;
+            }
+            
+            .stat-item {
+                min-width: unset;
+                padding: 6px 10px;
+            }
+            
+            .actions {
+                flex-direction: column;
+                width: 100%;
+                gap: 8px;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .capacity-selector {
+                flex-direction: row;
+                gap: 5px;
+            }
+            
+            .capacity-option {
+                min-width: unset;
+                padding: 6px 3px;
+                font-size: 0.9rem;
+            }
+            
+            .card {
+                padding: 10px;
+            }
+            
+            .section-title {
+                font-size: 1rem;
+            }
+            
+            th, td {
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+            
+            .result-container {
+                padding: 12px;
+                margin: 0 10px 10px;
+            }
+            
+            .result-container h3 {
+                font-size: 1.1rem;
+            }
+            
+            #resultText {
+                min-height: 100px;
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .capacity-option .size {
+                font-size: 0.9rem;
+            }
+            
+            .capacity-option .actual {
+                font-size: 0.75rem;
+            }
+            
+            .stats {
+                width: 100%;
+            }
+            
+            .control-section {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-gamepad"></i> MIG游戏库管理工具</h1>
+            <div class="subtitle">自由选择组合，实时容量统计，一键生成采购清单</div>
+        </header>
+        
+        <div class="controls">
+            <div class="control-section">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-sd-card"></i> 选择存储容量</div>
+                    <div class="capacity-selector">
+                        <div class="capacity-option selected" data-capacity="128">
+                            <div class="size">128G</div>
+                            <div class="actual">实际 116G</div>
+                        </div>
+                        <div class="capacity-option" data-capacity="256">
+                            <div class="size">256G</div>
+                            <div class="actual">实际 232G</div>
+                        </div>
+                        <div class="capacity-option" data-capacity="512">
+                            <div class="size">512G</div>
+                            <div class="actual">实际 465G</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-search"></i> 游戏搜索</div>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchBar" placeholder="输入游戏名称搜索...">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="value" id="selectedCount">0</div>
+                    <div class="label">已选游戏</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value" id="selectedSize">0.0</div>
+                    <div class="label">容量(GB)</div>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button id="resetBtn" class="btn btn-secondary"><i class="fas fa-redo"></i> 重置选择</button>
+                <button id="submitBtn" class="btn btn-primary"><i class="fas fa-paper-plane"></i> 生成采购清单</button>
+            </div>
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <h3><i class="fas fa-clipboard-list"></i> 采购清单</h3>
+            <textarea id="resultText" readonly></textarea>
+            <div class="result-actions">
+                <button id="copyBtn" class="btn btn-primary"><i class="fas fa-copy"></i> 一键复制</button>
+                <button id="closeResultBtn" class="btn btn-secondary"><i class="fas fa-times"></i> 关闭</button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="games-section">
+                <div class="section-title"><i class="fas fa-list"></i> 游戏列表 (共812款)</div>
+                <div class="table-container">
+                    <table id="gamesTable">
+                        <thead>
+                            <tr>
+                                <th width="50px">选择</th>
+                                <th width="70px">序号</th>
+                                <th>游戏名称</th>
+                                <th width="120px">容量 (GB)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gamesTableBody">
+                            <!-- 游戏列表动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2023 MIG游戏库管理工具 </p>
+        </div>
+    </div>
+
+    <script>
+        // 游戏数据（完整733款游戏）
+        const games = [
+    {
+        "id": 1,
+        "name": "[1-2 Switch大家一起].xci",
+        "size": 3.67
+    },
+    {
+        "id": 2,
+        "name": "[1-2-Switch].xci",
+        "size": 1.86
+    },
+    {
+        "id": 3,
+        "name": "[30合一 派对聚会游戏合集].xci",
+        "size": 1.86
+    },
+    {
+        "id": 4,
+        "name": "[60合一 派对聚会游戏合集 英文版].xci",
+        "size": 3.72
+    },
+    {
+        "id": 5,
+        "name": "[96号公路].xci",
+        "size": 3.72
+    },
+    {
+        "id": 6,
+        "name": "[AI梦境档案 本格推理冒险].xci",
+        "size": 10.63
+    },
+    {
+        "id": 7,
+        "name": "[AI梦境档案2 涅槃创始 续作].xci",
+        "size": 11.98
+    },
+    {
+        "id": 8,
+        "name": "[A列车 开始吧观光计划启动].xci",
+        "size": 2.53
+    },
+    {
+        "id": 9,
+        "name": "[DC超级英雄女孩].xci",
+        "size": 3.72
+    },
+    {
+        "id": 10,
+        "name": "[Fate：创世 LINK].xci",
+        "size": 7.44
+    },
+    {
+        "id": 11,
+        "name": "[Fate：武士遗迹（圣杯战争 盈月之仪）].xci",
+        "size": 14.88
+    },
+    {
+        "id": 12,
+        "name": "[Fate创世]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 13,
+        "name": "[FIFA足球18].xci",
+        "size": 14.88
+    },
+    {
+        "id": 14,
+        "name": "[FIFA足球19].xci",
+        "size": 14.88
+    },
+    {
+        "id": 15,
+        "name": "[FIFA足球22].xci",
+        "size": 14.88
+    },
+    {
+        "id": 16,
+        "name": "[FIFA足球23].xci",
+        "size": 14.88
+    },
+    {
+        "id": 17,
+        "name": "[FIFA足球EA 24].xci",
+        "size": 14.88
+    },
+    {
+        "id": 18,
+        "name": "[FIFA足球EA 25].xci",
+        "size": 14.88
+    },
+    {
+        "id": 19,
+        "name": "[IGS经典街机合集].xci",
+        "size": 1.86
+    },
+    {
+        "id": 20,
+        "name": "[JOJO的奇妙冒险 群星之战].xci",
+        "size": 3.52
+    },
+    {
+        "id": 21,
+        "name": "[JUMP大乱斗].xci",
+        "size": 10.95
+    },
+    {
+        "id": 22,
+        "name": "[JUMP力量 豪华版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 23,
+        "name": "[L.O.L.惊喜！电影之夜].xci",
+        "size": 1.86
+    },
+    {
+        "id": 24,
+        "name": "[LOOP8 降S].xci",
+        "size": 3.72
+    },
+    {
+        "id": 25,
+        "name": "[NBA2K 游乐场2].xci",
+        "size": 7.44
+    },
+    {
+        "id": 26,
+        "name": "[NBA2K23].xci",
+        "size": 7.44
+    },
+    {
+        "id": 27,
+        "name": "[NBA2K24].xci",
+        "size": 7.44
+    },
+    {
+        "id": 28,
+        "name": "[NBA2K25].xci",
+        "size": 7.14
+    },
+    {
+        "id": 29,
+        "name": "[Nerf传奇].xci",
+        "size": 7.44
+    },
+    {
+        "id": 30,
+        "name": "[Re从零开始的异世界生活]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 31,
+        "name": "[SD高达 激斗同盟]（三文件）.xci",
+        "size": 14.88
+    },
+    {
+        "id": 32,
+        "name": "[SD高达G世纪 创世 起源].xci",
+        "size": 11.86
+    },
+    {
+        "id": 33,
+        "name": "[SD高达G世纪 火线纵横 ].xci",
+        "size": 29.75
+    },
+    {
+        "id": 34,
+        "name": "[SNK女格斗家大乱斗].xci",
+        "size": 14.88
+    },
+    {
+        "id": 35,
+        "name": "[SPY×FAMILY间谍过家家日记大作战].xci",
+        "size": 4.78
+    },
+    {
+        "id": 36,
+        "name": "[TAITO 里程碑  街机合集游戏].xci",
+        "size": 0.92
+    },
+    {
+        "id": 37,
+        "name": "[THE体感运动 球类组合 网球 桌球].xci",
+        "size": 1.35
+    },
+    {
+        "id": 38,
+        "name": "[WWE 2K竞技场].xci",
+        "size": 6.42
+    },
+    {
+        "id": 39,
+        "name": "[WWE2K18].xci",
+        "size": 7.44
+    },
+    {
+        "id": 40,
+        "name": "[阿拉玛王国 重置版].xci",
+        "size": 12.73
+    },
+    {
+        "id": 41,
+        "name": "[阿历克斯小子奇幻世界大冒险].xci",
+        "size": 1.86
+    },
+    {
+        "id": 42,
+        "name": "[阿玛拉王国：惩罚].xci",
+        "size": 14.88
+    },
+    {
+        "id": 43,
+        "name": "[爱丝W与罗J的炼金工房～黄昏天空的炼金术师DX].xci",
+        "size": 7.44
+    },
+    {
+        "id": 44,
+        "name": "[爱夏的炼金工房～黄昏大地的炼金术士DX].xci",
+        "size": 7.44
+    },
+    {
+        "id": 45,
+        "name": "[爱与惩罚].xci",
+        "size": 7.86
+    },
+    {
+        "id": 46,
+        "name": "[安琪莉可].xci",
+        "size": 3.66
+    },
+    {
+        "id": 47,
+        "name": "[暗斗迷宫 2D].xci",
+        "size": 3.33
+    },
+    {
+        "id": 48,
+        "name": "[暗黑地牢 祖灵版].xci",
+        "size": 3.13
+    },
+    {
+        "id": 49,
+        "name": "[暗黑破坏神3 永恒之战版].xci",
+        "size": 13.66
+    },
+    {
+        "id": 50,
+        "name": "[暗黑血统1]（三文件）.xci",
+        "size": 14.88
+    },
+    {
+        "id": 51,
+        "name": "[暗黑血统2].xci",
+        "size": 14.88
+    },
+    {
+        "id": 52,
+        "name": "[暗黑血统3 创世纪].xci",
+        "size": 14.88
+    },
+    {
+        "id": 53,
+        "name": "[暗影火炬城].xci",
+        "size": 7.44
+    },
+    {
+        "id": 54,
+        "name": "[暗之眷属].xci",
+        "size": 1.49
+    },
+    {
+        "id": 55,
+        "name": "[奥林匹亚的晚宴].xci",
+        "size": 7.44
+    },
+    {
+        "id": 56,
+        "name": "[奥日2与萤火意志].xci",
+        "size": 3.72
+    },
+    {
+        "id": 57,
+        "name": "[奥日合集 精灵与森林+精灵与萤火意志].xci",
+        "size": 14.88
+    },
+    {
+        "id": 58,
+        "name": "[奥日与黑暗森林 终极版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 59,
+        "name": "[奥特曼怪兽农场].xci",
+        "size": 3.72
+    },
+    {
+        "id": 60,
+        "name": "[八方旅人1]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 61,
+        "name": "[八方旅人2].xci",
+        "size": 7.44
+    },
+    {
+        "id": 62,
+        "name": "[巴卡尼亚 苍蓝航路].xci",
+        "size": 3.33
+    },
+    {
+        "id": 63,
+        "name": "[巴兰的异想奇境+.xci",
+        "size": 7.44
+    },
+    {
+        "id": 64,
+        "name": "[白色情人节：恐怖学校].xci",
+        "size": 7.44
+    },
+    {
+        "id": 65,
+        "name": "[白与黑的爱丽丝].xci",
+        "size": 11.14
+    },
+    {
+        "id": 66,
+        "name": "[百密一疏少女心].xci",
+        "size": 4.66
+    },
+    {
+        "id": 67,
+        "name": "[百英雄传].xci",
+        "size": 29.75
+    },
+    {
+        "id": 68,
+        "name": "[薄暮传说 霄星传说HD].xci",
+        "size": 13.23
+    },
+    {
+        "id": 69,
+        "name": "[薄樱鬼 风华传].xci",
+        "size": 12.55
+    },
+    {
+        "id": 70,
+        "name": "[宝可梦 不可思议的迷宫救援队DX].xci",
+        "size": 3.72
+    },
+    {
+        "id": 71,
+        "name": "[宝可梦 盾 DLC同捆版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 72,
+        "name": "[宝可梦 盾].xci",
+        "size": 14.88
+    },
+    {
+        "id": 73,
+        "name": "[宝可梦 剑 DLC同捆版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 74,
+        "name": "[宝可梦 剑].xci",
+        "size": 14.88
+    },
+    {
+        "id": 75,
+        "name": "[宝可梦 晶灿钻石].xci",
+        "size": 7.44
+    },
+    {
+        "id": 76,
+        "name": "[宝可梦 明亮珍珠].xci",
+        "size": 7.44
+    },
+    {
+        "id": 77,
+        "name": "[宝可梦 去吧！皮卡丘].xci",
+        "size": 7.44
+    },
+    {
+        "id": 78,
+        "name": "[宝可梦 去吧伊布].xci",
+        "size": 7.44
+    },
+    {
+        "id": 79,
+        "name": "[宝可梦 随乐拍].xci",
+        "size": 7.44
+    },
+    {
+        "id": 80,
+        "name": "[宝可梦 铁拳DX].xci",
+        "size": 3.62
+    },
+    {
+        "id": 81,
+        "name": "[宝可梦 朱 DLC同捆版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 82,
+        "name": "[宝可梦 朱].xci",
+        "size": 7.44
+    },
+    {
+        "id": 83,
+        "name": "[宝可梦 紫 DLC同捆版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 84,
+        "name": "[宝可梦 紫].xci",
+        "size": 7.44
+    },
+    {
+        "id": 85,
+        "name": "[宝可梦传说：阿尔宙斯].xci",
+        "size": 7.44
+    },
+    {
+        "id": 86,
+        "name": "[爆丸 维斯托亚之冠 ].xci",
+        "size": 3.72
+    },
+    {
+        "id": 87,
+        "name": "[被囚禁D掌心].xci",
+        "size": 1.9
+    },
+    {
+        "id": 88,
+        "name": "[皕花皕狼]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 89,
+        "name": "[碧姬公主：表演时刻].xci",
+        "size": 7.44
+    },
+    {
+        "id": 90,
+        "name": "[碧蓝航线：交汇的轨迹].xci",
+        "size": 14.88
+    },
+    {
+        "id": 91,
+        "name": "[蝙蝠侠 阿卡姆三部曲  英文版].xci",
+        "size": 7.21
+    },
+    {
+        "id": 92,
+        "name": "[冰河世纪 鼠奎特的坚果冒险].xci",
+        "size": 2.79
+    },
+    {
+        "id": 93,
+        "name": "[波斯王子：失落的王冠].xci",
+        "size": 7.44
+    },
+    {
+        "id": 94,
+        "name": "[波西亚时光].xci",
+        "size": 2.75
+    },
+    {
+        "id": 95,
+        "name": "[波与月夜之青莲  横版动作闯关].xci",
+        "size": 3.25
+    },
+    {
+        "id": 96,
+        "name": "[不可逾越的红花双月]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 97,
+        "name": "[彩虹坠入].xci",
+        "size": 2.55
+    },
+    {
+        "id": 98,
+        "name": "[苍穹雷霆 合集].xci",
+        "size": 3.72
+    },
+    {
+        "id": 99,
+        "name": "[苍翼默示录 交叉组队战].xci",
+        "size": 6.78
+    },
+    {
+        "id": 100,
+        "name": "[层层kongju：遗产].xci",
+        "size": 7.44
+    },
+    {
+        "id": 101,
+        "name": "[茶杯头].xci",
+        "size": 7.44
+    },
+    {
+        "id": 102,
+        "name": "[拆箱 搬家模拟].xci",
+        "size": 1.39
+    },
+    {
+        "id": 103,
+        "name": "[铲子骑士无主珍宝].xci",
+        "size": 0.65
+    },
+    {
+        "id": 104,
+        "name": "[超级猴子球 香蕉闪电战HD].xci",
+        "size": 1.78
+    },
+    {
+        "id": 105,
+        "name": "[超级机器人大战30周年].xci",
+        "size": 14.88
+    },
+    {
+        "id": 106,
+        "name": "[超级机器人大战T].xci",
+        "size": 7.44
+    },
+    {
+        "id": 107,
+        "name": "[超级机器人大战V].xci",
+        "size": 7.44
+    },
+    {
+        "id": 108,
+        "name": "[超级机器人大战X].xci",
+        "size": 5.36
+    },
+    {
+        "id": 109,
+        "name": "[超级鸡马].xci",
+        "size": 1.86
+    },
+    {
+        "id": 110,
+        "name": "[超级街霸].xci",
+        "size": 3.72
+    },
+    {
+        "id": 111,
+        "name": "[超级街道赛].xci",
+        "size": 3.07
+    },
+    {
+        "id": 112,
+        "name": "[超级马里奥：奥德赛].xci",
+        "size": 7.44
+    },
+    {
+        "id": 113,
+        "name": "[超级马里奥派对].xci",
+        "size": 3.72
+    },
+    {
+        "id": 114,
+        "name": "[超级舞动！瓦力奥制造].xci",
+        "size": 1.86
+    },
+    {
+        "id": 115,
+        "name": "[超级幸运狐].xci",
+        "size": 6.29
+    },
+    {
+        "id": 116,
+        "name": "[超级炸弹人R].xci",
+        "size": 2.85
+    },
+    {
+        "id": 117,
+        "name": "[超侦探事件簿 雾雨谜宫]（三文件）.xci",
+        "size": 14.88
+    },
+    {
+        "id": 118,
+        "name": "[城堡huimie者 重置版].xci",
+        "size": 1.86
+    },
+    {
+        "id": 119,
+        "name": "[城市天际线]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 120,
+        "name": "[吃豆人 吃遍世界].xci",
+        "size": 2.7
+    },
+    {
+        "id": 121,
+        "name": "[赤影战士 水上魂斗罗 重制版].xci",
+        "size": 2.41
+    },
+    {
+        "id": 122,
+        "name": "[初音未来：歌姬计划 MEGAMIX].xci",
+        "size": 14.88
+    },
+    {
+        "id": 123,
+        "name": "[传送门骑士].xci",
+        "size": 3.08
+    },
+    {
+        "id": 124,
+        "name": "[创世D公主 白银D奇迹].xci",
+        "size": 5.35
+    },
+    {
+        "id": 125,
+        "name": "[创世D公主 姬J].xci",
+        "size": 3.63
+    },
+    {
+        "id": 126,
+        "name": "[创世D公主 祝福D未来].xci",
+        "size": 6.13
+    },
+    {
+        "id": 127,
+        "name": "[创世的公主]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 128,
+        "name": "[刺客信条 艾吉奥].xci",
+        "size": 7.44
+    },
+    {
+        "id": 129,
+        "name": "[刺客信条 艾吉奥合集].xci",
+        "size": 14.88
+    },
+    {
+        "id": 130,
+        "name": "[刺客信条：反叛者合集]（三文件）.xci",
+        "size": 14.88
+    },
+    {
+        "id": 131,
+        "name": "[刺客信条3 重制版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 132,
+        "name": "[搭档任务 秘密搜查组].xci",
+        "size": 7.44
+    },
+    {
+        "id": 133,
+        "name": "[搭档任务].xci",
+        "size": 7.44
+    },
+    {
+        "id": 134,
+        "name": "[打工人].xci",
+        "size": 1.42
+    },
+    {
+        "id": 135,
+        "name": "[打砖块对决太空入侵者].xci",
+        "size": 1.86
+    },
+    {
+        "id": 136,
+        "name": "[大航海时代4 威力加强版HD].xci",
+        "size": 1.74
+    },
+    {
+        "id": 137,
+        "name": "[大家一起察言观色123+合集].xci",
+        "size": 0.73
+    },
+    {
+        "id": 138,
+        "name": "[大金刚国度 热带寒流 森喜刚 ].xci",
+        "size": 7.44
+    },
+    {
+        "id": 139,
+        "name": "[大人的脑部锻炼].xci",
+        "size": 1.86
+    },
+    {
+        "id": 140,
+        "name": "[大神 绝境版 日文].xci",
+        "size": 9.85
+    },
+    {
+        "id": 141,
+        "name": "[大头盔英雄].xci",
+        "size": 5.48
+    },
+    {
+        "id": 142,
+        "name": "[大侦探皮卡丘 闪电回归 ].xci",
+        "size": 14.88
+    },
+    {
+        "id": 143,
+        "name": "[代码：实现～创世的公主].xci",
+        "size": 3.72
+    },
+    {
+        "id": 144,
+        "name": "[袋鼠闯天关].xci",
+        "size": 4.02
+    },
+    {
+        "id": 145,
+        "name": "[弹丸论破 十周年合集 ].xci",
+        "size": 14.88
+    },
+    {
+        "id": 146,
+        "name": "[弹丸论破2：再见了绝望学园].xci",
+        "size": 14.88
+    },
+    {
+        "id": 147,
+        "name": "[刀剑神域：彼岸游境].xci",
+        "size": 14.88
+    },
+    {
+        "id": 148,
+        "name": "[刀剑神域：夺命凶弹 完全版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 149,
+        "name": "[刀剑神域：碎梦边境].xci",
+        "size": 12.84
+    },
+    {
+        "id": 150,
+        "name": "[刀剑神域：虚空幻界 豪华版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 151,
+        "name": "[岛屿生存者 幸存者].xci",
+        "size": 1.23
+    },
+    {
+        "id": 152,
+        "name": "[德军总部2 新巨像 ].xci",
+        "size": 14.88
+    },
+    {
+        "id": 153,
+        "name": "[德军总部2].xci",
+        "size": 14.88
+    },
+    {
+        "id": 154,
+        "name": "[地产大亨 合集].xci",
+        "size": 7.44
+    },
+    {
+        "id": 155,
+        "name": "[地铁归来 2033 曙光].xci",
+        "size": 14.26
+    },
+    {
+        "id": 156,
+        "name": "[地下城与勇士 决斗 下一个是谁].xci",
+        "size": 6.58
+    },
+    {
+        "id": 157,
+        "name": "[地狱男爵 怀尔德之网].xci",
+        "size": 2.49
+    },
+    {
+        "id": 158,
+        "name": "[迪士尼魔法城堡2].xci",
+        "size": 7.44
+    },
+    {
+        "id": 159,
+        "name": "[迪士尼奇幻岛 米奇与好朋友大冒险].xci",
+        "size": 6.85
+    },
+    {
+        "id": 160,
+        "name": "[迪斯尼嘉年华].xci",
+        "size": 2.73
+    },
+    {
+        "id": 161,
+        "name": "[第六妖守].xci",
+        "size": 4.21
+    },
+    {
+        "id": 162,
+        "name": "[第一次的游戏程序设计]].xci",
+        "size": 1.86
+    },
+    {
+        "id": 163,
+        "name": "[点心世界地牢爬行 黄金版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 164,
+        "name": "[钓鱼之星 世界之旅 ].xci",
+        "size": 3.72
+    },
+    {
+        "id": 165,
+        "name": "[东方夜雀食堂].xci",
+        "size": 3.72
+    },
+    {
+        "id": 166,
+        "name": "[咚奇刚 归来HD].xci",
+        "size": 14.88
+    },
+    {
+        "id": 167,
+        "name": "[咚奇刚：热带寒流].xci",
+        "size": 7.44
+    },
+    {
+        "id": 168,
+        "name": "[动物之斗].xci",
+        "size": 0.9
+    },
+    {
+        "id": 169,
+        "name": "[洞穴探险者 HD 豪华版].xci",
+        "size": 1.27
+    },
+    {
+        "id": 170,
+        "name": "[毒枭 卡塔尔集团崛起].xci",
+        "size": 7.61
+    },
+    {
+        "id": 171,
+        "name": "[渎神].xci",
+        "size": 4.69
+    },
+    {
+        "id": 172,
+        "name": "[渎神2+].xci",
+        "size": 3.72
+    },
+    {
+        "id": 173,
+        "name": "[渡神纪 芬尼克斯传说].xci",
+        "size": 14.88
+    },
+    {
+        "id": 174,
+        "name": "[队长小翼(足球小将)新秀崛起].xci",
+        "size": 14.88
+    },
+    {
+        "id": 175,
+        "name": "[哆啦A梦 大雄的紧张刺激动脑大冒险]（三文件）.xci",
+        "size": 1.39
+    },
+    {
+        "id": 176,
+        "name": "[哆啦A梦 大雄的牧场物语].xci",
+        "size": 1.08
+    },
+    {
+        "id": 177,
+        "name": "[哆啦A梦 大雄的信恐龙].xci",
+        "size": 3.54
+    },
+    {
+        "id": 178,
+        "name": "[哆啦A梦 乐学游戏合集].xci",
+        "size": 3.72
+    },
+    {
+        "id": 179,
+        "name": "[哆啦A梦 牧场物语2 自然王国与和乐家R].xci",
+        "size": 3.72
+    },
+    {
+        "id": 180,
+        "name": "[俄罗斯方块 99 DLC同捆版].xci",
+        "size": 1.86
+    },
+    {
+        "id": 181,
+        "name": "[恶役拔旗]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 182,
+        "name": "[二之国：白色圣灰的女王].xci",
+        "size": 7.44
+    },
+    {
+        "id": 183,
+        "name": "[二之国2 亡灵之国].xci",
+        "size": 10.96
+    },
+    {
+        "id": 184,
+        "name": "[方根书简：最后的答案].xci",
+        "size": 7.44
+    },
+    {
+        "id": 185,
+        "name": "[方舟 生存进化].xci",
+        "size": 14.88
+    },
+    {
+        "id": 186,
+        "name": "[分手厨房2].xci",
+        "size": 3.49
+    },
+    {
+        "id": 187,
+        "name": "[分享同乐瓦力欧制造].xci",
+        "size": 1.86
+    },
+    {
+        "id": 188,
+        "name": "[丰收之月：安托斯之风].xci",
+        "size": 2.17
+    },
+    {
+        "id": 189,
+        "name": "[丰收之月：农业狂潮].xci",
+        "size": 1.86
+    },
+    {
+        "id": 190,
+        "name": "[丰收之月：希望之光].xci",
+        "size": 1.86
+    },
+    {
+        "id": 191,
+        "name": "[风火轮释放].xci",
+        "size": 7.44
+    },
+    {
+        "id": 192,
+        "name": "[风之少年 克罗诺亚 1&2 乘风归来].xci",
+        "size": 7.44
+    },
+    {
+        "id": 193,
+        "name": "[疯狂兔子：奇遇派对].xci",
+        "size": 3.72
+    },
+    {
+        "id": 194,
+        "name": "[符文工厂3 特别版].xci",
+        "size": 3.72
+    },
+    {
+        "id": 195,
+        "name": "[符文工坊3].xci",
+        "size": 2.43
+    },
+    {
+        "id": 196,
+        "name": "[符文工坊4].xci",
+        "size": 4.27
+    },
+    {
+        "id": 197,
+        "name": "[符文工房 龙之天地].xci",
+        "size": 6.14
+    },
+    {
+        "id": 198,
+        "name": "[符文工房5].xci",
+        "size": 7.44
+    },
+    {
+        "id": 199,
+        "name": "[附带导航一做就上手第一次的游戏程序设计].xci",
+        "size": 1.86
+    },
+    {
+        "id": 200,
+        "name": "[高达破坏者4].xci",
+        "size": 6.63
+    },
+    {
+        "id": 201,
+        "name": "[高高兴兴动物园].xci",
+        "size": 1.71
+    },
+    {
+        "id": 202,
+        "name": "[高级战争1+2：营地重启+].xci",
+        "size": 7.02
+    },
+    {
+        "id": 203,
+        "name": "[告别回忆 历代回忆录1].xci",
+        "size": 14.88
+    },
+    {
+        "id": 204,
+        "name": "[告别回忆 历代回忆录2].xci",
+        "size": 14.88
+    },
+    {
+        "id": 205,
+        "name": "[格兰蒂亚 冒险奇谭1+2 HD合集].xci",
+        "size": 7.13
+    },
+    {
+        "id": 206,
+        "name": "[格雷克：阿祖尔的回忆].xci",
+        "size": 1.47
+    },
+    {
+        "id": 207,
+        "name": "[共生丘比特].xci",
+        "size": 7.44
+    },
+    {
+        "id": 208,
+        "name": "[孤岛危机].xci",
+        "size": 7.44
+    },
+    {
+        "id": 209,
+        "name": "[孤岛危机2 重置版].xci",
+        "size": 10.75
+    },
+    {
+        "id": 210,
+        "name": "[孤岛危机3 重置版].xci",
+        "size": 10.6
+    },
+    {
+        "id": 211,
+        "name": "[古惑狼 疯狂三部曲].xci",
+        "size": 7.44
+    },
+    {
+        "id": 212,
+        "name": "[古惑狼4 时机已到].xci",
+        "size": 14.88
+    },
+    {
+        "id": 213,
+        "name": "[古惑狼赛车 氮气加速 重制版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 214,
+        "name": "[古墓丽影 1-3三部曲].xci",
+        "size": 6.1
+    },
+    {
+        "id": 215,
+        "name": "[怪物猎人 崛起].xci",
+        "size": 7.44
+    },
+    {
+        "id": 216,
+        "name": "[怪物猎人GU 世代終極版].xci",
+        "size": 11.69
+    },
+    {
+        "id": 217,
+        "name": "[怪物猎人物语1xx].xci",
+        "size": 10.89
+    },
+    {
+        "id": 218,
+        "name": "[怪物猎人物语1重制版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 219,
+        "name": "[怪物猎人物语2 破灭之翼].xci",
+        "size": 14.88
+    },
+    {
+        "id": 220,
+        "name": "[关键奇异鸟].xci",
+        "size": 1.71
+    },
+    {
+        "id": 221,
+        "name": "[关于我转生变成史莱姆这档事 坦派斯特开拓谭].xci",
+        "size": 5.77
+    },
+    {
+        "id": 222,
+        "name": "[鬼哭之邦].xci",
+        "size": 3.72
+    },
+    {
+        "id": 223,
+        "name": "[鬼灭之刃 成为最强队士].xci",
+        "size": 3.72
+    },
+    {
+        "id": 224,
+        "name": "[鬼灭之刃 火之神血风谭].xci",
+        "size": 14.88
+    },
+    {
+        "id": 225,
+        "name": "[鬼灭之刃 火之神血风谭2].xci",
+        "size": 13.2
+    },
+    {
+        "id": 226,
+        "name": "[鬼泣].xci",
+        "size": 14.88
+    },
+    {
+        "id": 227,
+        "name": "[鬼武者].xci",
+        "size": 10.0
+    },
+    {
+        "id": 228,
+        "name": "[国际汽车联盟世界拉力锦标赛 10].xci",
+        "size": 14.88
+    },
+    {
+        "id": 229,
+        "name": "[国际汽车联盟世界拉力锦标赛 8].xci",
+        "size": 14.88
+    },
+    {
+        "id": 230,
+        "name": "[国际汽车联盟世界拉力锦标赛 9].xci",
+        "size": 14.88
+    },
+    {
+        "id": 231,
+        "name": "[国王的恩赐2].xci",
+        "size": 9.16
+    },
+    {
+        "id": 232,
+        "name": "[哈迪斯].xci",
+        "size": 7.44
+    },
+    {
+        "id": 233,
+        "name": "[哈利波特 霍格沃兹]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 234,
+        "name": "[海绵宝宝 比基尼的冒险].xci",
+        "size": 6.2
+    },
+    {
+        "id": 235,
+        "name": "[海绵宝宝 派大星].xci",
+        "size": 1.02
+    },
+    {
+        "id": 236,
+        "name": "[海绵宝宝：比奇堡的冒险 - 重新水合].xci",
+        "size": 7.44
+    },
+    {
+        "id": 237,
+        "name": "[海绵宝宝：大闹蟹堡王].xci",
+        "size": 1.86
+    },
+    {
+        "id": 238,
+        "name": "[海绵宝宝：宇宙摇摆].xci",
+        "size": 7.44
+    },
+    {
+        "id": 239,
+        "name": "[海商王4].xci",
+        "size": 7.44
+    },
+    {
+        "id": 240,
+        "name": "[海贼王 时光旅诗].xci",
+        "size": 12.05
+    },
+    {
+        "id": 241,
+        "name": "[海贼王 无尽世界R ].xci",
+        "size": 14.88
+    },
+    {
+        "id": 242,
+        "name": "[海贼王 无双3].xci",
+        "size": 14.88
+    },
+    {
+        "id": 243,
+        "name": "[海贼王 无双4].xci",
+        "size": 14.88
+    },
+    {
+        "id": 244,
+        "name": "[合金弹头 战略版].xci",
+        "size": 1.76
+    },
+    {
+        "id": 245,
+        "name": "[合金装备 大师合集NO1].xci",
+        "size": 2.21
+    },
+    {
+        "id": 246,
+        "name": "[和睦森林].xci",
+        "size": 1.86
+    },
+    {
+        "id": 247,
+        "name": "[黑暗之魂].xci",
+        "size": 7.44
+    },
+    {
+        "id": 248,
+        "name": "[黑道圣徒3 完全版].xci",
+        "size": 7.42
+    },
+    {
+        "id": 249,
+        "name": "[黑道圣徒4 再次当选].xci",
+        "size": 7.4
+    },
+    {
+        "id": 250,
+        "name": "[黑色洛城].xci",
+        "size": 14.68
+    },
+    {
+        "id": 251,
+        "name": "[黑桃G的爱丽丝].xci",
+        "size": 3.15
+    },
+    {
+        "id": 252,
+        "name": "[狐狸在等我].xci",
+        "size": 3.72
+    },
+    {
+        "id": 253,
+        "name": "[胡闹搬家2].xci",
+        "size": 1.86
+    },
+    {
+        "id": 254,
+        "name": "[胡闹厨房1+2].xci",
+        "size": 14.88
+    },
+    {
+        "id": 255,
+        "name": "[胡闹泊车].xci",
+        "size": 0.79
+    },
+    {
+        "id": 256,
+        "name": "[花合朔 姬空木篇].xci",
+        "size": 3.38
+    },
+    {
+        "id": 257,
+        "name": "[花合朔 蛟篇].xci",
+        "size": 2.83
+    },
+    {
+        "id": 258,
+        "name": "[花合朔 唐红篇].xci",
+        "size": 3.65
+    },
+    {
+        "id": 259,
+        "name": "[花合朔 伊吕波篇].xci",
+        "size": 2.99
+    },
+    {
+        "id": 260,
+        "name": "[花之N王].xci",
+        "size": 4.73
+    },
+    {
+        "id": 261,
+        "name": "[花之灵].xci",
+        "size": 1.86
+    },
+    {
+        "id": 262,
+        "name": "[华彩煌煌,吾之一族幻灯时代]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 263,
+        "name": "[欢乐桑巴：派对中心].xci",
+        "size": 1.55
+    },
+    {
+        "id": 264,
+        "name": "[幻想大陆战记：露纳希亚传说].xci",
+        "size": 14.88
+    },
+    {
+        "id": 265,
+        "name": "[幻想生活i：转圈圈的L和偷取时间的少女].xci",
+        "size": 6.51
+    },
+    {
+        "id": 266,
+        "name": "[幻想水浒传1+2 重制版].xci",
+        "size": 7.11
+    },
+    {
+        "id": 267,
+        "name": "[幻影异闻录 FE].xci",
+        "size": 14.88
+    },
+    {
+        "id": 268,
+        "name": "[幻奏咖啡厅]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 269,
+        "name": "[荒野大镖客 救赎+梦魇].xci",
+        "size": 11.65
+    },
+    {
+        "id": 270,
+        "name": "[皇家骑士团 重生].xci",
+        "size": 7.44
+    },
+    {
+        "id": 271,
+        "name": "[皇牌空战7 未知领域].xci",
+        "size": 14.88
+    },
+    {
+        "id": 272,
+        "name": "[黄昏中魔女如是说].xci",
+        "size": 3.48
+    },
+    {
+        "id": 273,
+        "name": "[谎月香格里拉].xci",
+        "size": 3.72
+    },
+    {
+        "id": 274,
+        "name": "[回转寿司先锋：寿司之道]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 275,
+        "name": "[毁灭全人类].xci",
+        "size": 6.63
+    },
+    {
+        "id": 276,
+        "name": "[毁灭战士].xci",
+        "size": 14.88
+    },
+    {
+        "id": 277,
+        "name": "[魂斗罗 加鲁加行动].xci",
+        "size": 7.44
+    },
+    {
+        "id": 278,
+        "name": "[魂斗罗 流氓军团].xci",
+        "size": 4.18
+    },
+    {
+        "id": 279,
+        "name": "[魂斗罗 周年纪念合集]（三文件）.xci",
+        "size": 1.86
+    },
+    {
+        "id": 280,
+        "name": "[混乱出租车.xci",
+        "size": 1.74
+    },
+    {
+        "id": 281,
+        "name": "[火爆狂飙：天堂重制版].xci",
+        "size": 4.35
+    },
+    {
+        "id": 282,
+        "name": "[火焰纹章 ENGAGE].xci",
+        "size": 14.88
+    },
+    {
+        "id": 283,
+        "name": "[火焰纹章 风花雪月 无双]（三文件）.xci",
+        "size": 14.88
+    },
+    {
+        "id": 284,
+        "name": "[火焰纹章 风花雪月].xci",
+        "size": 14.88
+    },
+    {
+        "id": 285,
+        "name": "[火焰纹章 无双].xci",
+        "size": 13.92
+    },
+    {
+        "id": 286,
+        "name": "[火影忍者 究极风暴4].xci",
+        "size": 14.88
+    },
+    {
+        "id": 287,
+        "name": "[火影忍者 三部曲1 2日文 3中文].xci",
+        "size": 14.55
+    },
+    {
+        "id": 288,
+        "name": "[火影忍者 终极风暴羁绊].xci",
+        "size": 14.88
+    },
+    {
+        "id": 289,
+        "name": "[机甲少女：爱丽丝CS].xci",
+        "size": 3.72
+    },
+    {
+        "id": 290,
+        "name": "[机甲战魔].xci",
+        "size": 7.44
+    },
+    {
+        "id": 291,
+        "name": "[畸形 Monstrum].xci",
+        "size": 1.57
+    },
+    {
+        "id": 292,
+        "name": "[吉娜姐妹：扭曲M境].xci",
+        "size": 1.6
+    },
+    {
+        "id": 293,
+        "name": "[极乐迪斯科 最终剪辑版].xci",
+        "size": 7.37
+    },
+    {
+        "id": 294,
+        "name": "[极品飞车14 ].xci",
+        "size": 7.44
+    },
+    {
+        "id": 295,
+        "name": "[极速俱乐部 无限2].xci",
+        "size": 5.06
+    },
+    {
+        "id": 296,
+        "name": "[极速俱乐部1].xci",
+        "size": 7.44
+    },
+    {
+        "id": 297,
+        "name": "[极限凸起萌情水晶H].xci",
+        "size": 7.44
+    },
+    {
+        "id": 298,
+        "name": "[即时运动 夏日].xci",
+        "size": 1.54
+    },
+    {
+        "id": 299,
+        "name": "[集合啦！XX森友会].xci",
+        "size": 7.44
+    },
+    {
+        "id": 300,
+        "name": "[祭品与雪之刹那].xci",
+        "size": 1.86
+    },
+    {
+        "id": 301,
+        "name": "[家庭训练机].xci",
+        "size": 1.35
+    },
+    {
+        "id": 302,
+        "name": "[假面骑士 巅峰乱斗].xci",
+        "size": 3.72
+    },
+    {
+        "id": 303,
+        "name": "[假面骑士 英雄寻忆].xci",
+        "size": 7.44
+    },
+    {
+        "id": 304,
+        "name": "[剑为J舞 for S].xci",
+        "size": 8.43
+    },
+    {
+        "id": 305,
+        "name": "[健身环大冒险].xci",
+        "size": 3.72
+    },
+    {
+        "id": 306,
+        "name": "[健身拳击 北斗神拳].xci",
+        "size": 3.72
+    },
+    {
+        "id": 307,
+        "name": "[健身拳击1有氧拳击1].xci",
+        "size": 1.86
+    },
+    {
+        "id": 308,
+        "name": "[健身拳击2有氧拳击2].xci",
+        "size": 3.72
+    },
+    {
+        "id": 309,
+        "name": "[健身拳击3 有氧拳击3].xci",
+        "size": 3.72
+    },
+    {
+        "id": 310,
+        "name": "[健身拳击feat 初音未来-和未来一起健身].xci",
+        "size": 3.72
+    },
+    {
+        "id": 311,
+        "name": "[健身巡游].xci",
+        "size": 4.3
+    },
+    {
+        "id": 312,
+        "name": "[僵尸部队 三部曲].xci",
+        "size": 5.41
+    },
+    {
+        "id": 313,
+        "name": "[僵尸部队4].xci",
+        "size": 7.44
+    },
+    {
+        "id": 314,
+        "name": "[角落萌宠：集合! 角落小镇 日文].xci",
+        "size": 1.19
+    },
+    {
+        "id": 315,
+        "name": "[角落小伙伴 一起来玩节奏派对].xci",
+        "size": 1.86
+    },
+    {
+        "id": 316,
+        "name": "[角落小伙伴 在房间角落旅行].xci",
+        "size": 1.86
+    },
+    {
+        "id": 317,
+        "name": "[街霸 30周年合集收藏版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 318,
+        "name": "[街头大乱斗进行曲马赫].xci",
+        "size": 0.82
+    },
+    {
+        "id": 319,
+        "name": "[节奏海拉鲁 死灵舞师地牢].xci",
+        "size": 2.02
+    },
+    {
+        "id": 320,
+        "name": "[节奏健身].xci",
+        "size": 1.26
+    },
+    {
+        "id": 321,
+        "name": "[杰克珍妮].xci",
+        "size": 7.44
+    },
+    {
+        "id": 322,
+        "name": "[进击的巨人2].xci",
+        "size": 29.75
+    },
+    {
+        "id": 323,
+        "name": "[荆棘：群山之王].xci",
+        "size": 7.44
+    },
+    {
+        "id": 324,
+        "name": "[旧书店街的桥姬].xci",
+        "size": 3.49
+    },
+    {
+        "id": 325,
+        "name": "[狙击精英3：终极版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 326,
+        "name": "[狙击精英4].xci",
+        "size": 7.44
+    },
+    {
+        "id": 327,
+        "name": "[绝体绝命都市4 Plus：夏日回忆].xci",
+        "size": 14.83
+    },
+    {
+        "id": 328,
+        "name": "[绝望校园].xci",
+        "size": 14.88
+    },
+    {
+        "id": 329,
+        "name": "[绝影战士].xci",
+        "size": 3.72
+    },
+    {
+        "id": 330,
+        "name": "[君于雪中希冀].xci",
+        "size": 4.97
+    },
+    {
+        "id": 331,
+        "name": "[卡车司机 货车驾驶员].xci",
+        "size": 2.07
+    },
+    {
+        "id": 332,
+        "name": "[卡普空格斗合集].xci",
+        "size": 3.72
+    },
+    {
+        "id": 333,
+        "name": "[卡普空横版动作收藏集]（三文件）.xci",
+        "size": 1.86
+    },
+    {
+        "id": 334,
+        "name": "[卡普空街机游戏合集].xci",
+        "size": 1.86
+    },
+    {
+        "id": 335,
+        "name": "[卡普空经典动作游戏合集].xci",
+        "size": 1.11
+    },
+    {
+        "id": 336,
+        "name": "[凯瑟琳：浓郁口感].xci",
+        "size": 14.88
+    },
+    {
+        "id": 337,
+        "name": "[空洞骑士].xci",
+        "size": 7.44
+    },
+    {
+        "id": 338,
+        "name": "[空中突击 蓝天对决 合集].xci",
+        "size": 3.3
+    },
+    {
+        "id": 339,
+        "name": "[恐怖的世界].xci",
+        "size": 0.72
+    },
+    {
+        "id": 340,
+        "name": "[口袋妖怪 尼可梦灭绝].xci",
+        "size": 2.98
+    },
+    {
+        "id": 341,
+        "name": "[跨越时间与空间的救赎之旅].xci",
+        "size": 2.23
+    },
+    {
+        "id": 342,
+        "name": "[快打旋风2]（三文件）.xci",
+        "size": 3.1
+    },
+    {
+        "id": 343,
+        "name": "[快乐桑巴 摇摇乐派对.xci",
+        "size": 1.86
+    },
+    {
+        "id": 344,
+        "name": "[狂野星球之旅].xci",
+        "size": 3.72
+    },
+    {
+        "id": 345,
+        "name": "[蜡笔小新 煤炭镇的小白].xci",
+        "size": 3.72
+    },
+    {
+        "id": 346,
+        "name": "[蜡笔小新 我与博士的暑假 永不结束的七日之旅].xci",
+        "size": 1.86
+    },
+    {
+        "id": 347,
+        "name": "[来自深渊 朝向黑暗的双星].xci",
+        "size": 7.44
+    },
+    {
+        "id": 348,
+        "name": "[莱莎的炼金工房1～常暗女王与秘密藏身处].xci",
+        "size": 5.67
+    },
+    {
+        "id": 349,
+        "name": "[莱莎的炼金工房2：失落的传说与秘密妖精].xci",
+        "size": 7.44
+    },
+    {
+        "id": 350,
+        "name": "[莱莎的炼金工房3：终结之炼金术士与秘密钥匙].xci",
+        "size": 7.44
+    },
+    {
+        "id": 351,
+        "name": "[兰空VOEZ].xci",
+        "size": 1.27
+    },
+    {
+        "id": 352,
+        "name": "[蓝精灵2 绿石之囚].xci",
+        "size": 3.26
+    },
+    {
+        "id": 353,
+        "name": "[蓝色反射 帝].xci",
+        "size": 7.44
+    },
+    {
+        "id": 354,
+        "name": "[浪漫沙加2 七英雄的复仇 重制版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 355,
+        "name": "[浪漫沙加3].xci",
+        "size": 1.86
+    },
+    {
+        "id": 356,
+        "name": "[乐高 2K飙风赛车].xci",
+        "size": 7.44
+    },
+    {
+        "id": 357,
+        "name": "[乐高 DC超级F派].xci",
+        "size": 11.26
+    },
+    {
+        "id": 358,
+        "name": "[乐高 超REN总动员].xci",
+        "size": 9.0
+    },
+    {
+        "id": 359,
+        "name": "[乐高 地平线冒险].xci",
+        "size": 7.44
+    },
+    {
+        "id": 360,
+        "name": "[乐高 旋风ren者大电影].xci",
+        "size": 7.5
+    },
+    {
+        "id": 361,
+        "name": "[乐高 侏罗纪世界].xci",
+        "size": 5.07
+    },
+    {
+        "id": 362,
+        "name": "[乐高大电影2].xci",
+        "size": 5.21
+    },
+    {
+        "id": 363,
+        "name": "[乐高大乱斗].xci",
+        "size": 2.87
+    },
+    {
+        "id": 364,
+        "name": "[乐高哈利波特 七部曲].xci",
+        "size": 14.88
+    },
+    {
+        "id": 365,
+        "name": "[乐高漫威超级英雄2].xci",
+        "size": 14.88
+    },
+    {
+        "id": 366,
+        "name": "[乐高世界+].xci",
+        "size": 2.43
+    },
+    {
+        "id": 367,
+        "name": "[乐高小城 卧底神探].xci",
+        "size": 8.61
+    },
+    {
+        "id": 368,
+        "name": "[乐高星球大战 天行者传奇].xci",
+        "size": 14.88
+    },
+    {
+        "id": 369,
+        "name": "[雷电4 x 米卡多 混音版  英文版].xci",
+        "size": 1.14
+    },
+    {
+        "id": 370,
+        "name": "[雷电5].xci",
+        "size": 4.0
+    },
+    {
+        "id": 371,
+        "name": "[雷顿神秘之旅：卡特丽艾尔和大富翁的YM].xci",
+        "size": 3.72
+    },
+    {
+        "id": 372,
+        "name": "[雷曼传奇 终极版].xci",
+        "size": 3.29
+    },
+    {
+        "id": 373,
+        "name": "[雷纳提斯].xci",
+        "size": 14.88
+    },
+    {
+        "id": 374,
+        "name": "[冷然之天枰].xci",
+        "size": 4.61
+    },
+    {
+        "id": 375,
+        "name": "[李三历险记].xci",
+        "size": 14.88
+    },
+    {
+        "id": 376,
+        "name": "[莉蒂与丝尔莉D苏瑞的工作室 不可思议绘画的炼金术士].xci",
+        "size": 14.88
+    },
+    {
+        "id": 377,
+        "name": "[炼狱围城 地狱守卫].xci",
+        "size": 2.45
+    },
+    {
+        "id": 378,
+        "name": "[两人一起！猫咪大战争].xci",
+        "size": 0.97
+    },
+    {
+        "id": 379,
+        "name": "[猎天使魔女 起源 ].xci",
+        "size": 7.44
+    },
+    {
+        "id": 380,
+        "name": "[猎天使魔女1].xci",
+        "size": 14.88
+    },
+    {
+        "id": 381,
+        "name": "[猎天使魔女2].xci",
+        "size": 14.88
+    },
+    {
+        "id": 382,
+        "name": "[猎天使魔女3].xci",
+        "size": 14.88
+    },
+    {
+        "id": 383,
+        "name": "[灵魂旅人]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 384,
+        "name": "[灵活脑学校 一起伸展大脑].xci",
+        "size": 1.86
+    },
+    {
+        "id": 385,
+        "name": "[零～濡鸦之巫女].xci",
+        "size": 14.19
+    },
+    {
+        "id": 386,
+        "name": "[零~月蚀的假面].xci",
+        "size": 7.44
+    },
+    {
+        "id": 387,
+        "name": "[龙之死印].xci",
+        "size": 0.85
+    },
+    {
+        "id": 388,
+        "name": "[龙之信条 黑暗降临].xci",
+        "size": 12.42
+    },
+    {
+        "id": 389,
+        "name": "[龙珠 超宇宙2].xci",
+        "size": 10.15
+    },
+    {
+        "id": 390,
+        "name": "[龙珠 破界斗士Z].xci",
+        "size": 6.58
+    },
+    {
+        "id": 391,
+        "name": "[龙珠Z 卡卡罗特+新觉醒篇].xci",
+        "size": 14.88
+    },
+    {
+        "id": 392,
+        "name": "[路易吉洋馆2HD].xci",
+        "size": 3.35
+    },
+    {
+        "id": 393,
+        "name": "[路易吉洋馆3].xci",
+        "size": 7.44
+    },
+    {
+        "id": 394,
+        "name": "[露露亚的炼金工房 錬金術士４].xci",
+        "size": 7.44
+    },
+    {
+        "id": 395,
+        "name": "[洛克人11 命运的齿轮].xci",
+        "size": 3.72
+    },
+    {
+        "id": 396,
+        "name": "[洛克人EXE合集123合輯].xci",
+        "size": 3.65
+    },
+    {
+        "id": 397,
+        "name": "[洛克人X周年纪念合集]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 398,
+        "name": "[洛克人Zero&ZX遗产合集].xci",
+        "size": 3.72
+    },
+    {
+        "id": 399,
+        "name": "[马里奥3D世界].xci",
+        "size": 3.72
+    },
+    {
+        "id": 400,
+        "name": "[马里奥RPG].xci",
+        "size": 6.76
+    },
+    {
+        "id": 401,
+        "name": "[马里奥vs咚奇刚].xci",
+        "size": 1.86
+    },
+    {
+        "id": 402,
+        "name": "[马里奥Z造2].xci",
+        "size": 3.41
+    },
+    {
+        "id": 403,
+        "name": "[马里奥高尔夫].xci",
+        "size": 7.44
+    },
+    {
+        "id": 404,
+        "name": "[马里奥和索尼克在2020东京奥运会].xci",
+        "size": 6.73
+    },
+    {
+        "id": 405,
+        "name": "[马里奥惊奇].xci",
+        "size": 7.44
+    },
+    {
+        "id": 406,
+        "name": "[马里奥派对 超级巨星].xci",
+        "size": 3.72
+    },
+    {
+        "id": 407,
+        "name": "[马里奥派对 空前盛会].xci",
+        "size": 5.65
+    },
+    {
+        "id": 408,
+        "name": "[马里奥赛车8 豪华版 全赛道版]（三文件）.xci",
+        "size": 14.88
+    },
+    {
+        "id": 409,
+        "name": "[马里奥赛车8 豪华版-原版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 410,
+        "name": "[马里奥网球 王牌].xci",
+        "size": 3.72
+    },
+    {
+        "id": 411,
+        "name": "[马里奥兄弟 U].xci",
+        "size": 3.72
+    },
+    {
+        "id": 412,
+        "name": "[马里奥与疯狂兔子 星耀之愿].xci",
+        "size": 7.44
+    },
+    {
+        "id": 413,
+        "name": "[马里奥与疯狂兔子王国之战].xci",
+        "size": 3.72
+    },
+    {
+        "id": 414,
+        "name": "[马里奥足球 激战前锋战斗联赛].xci",
+        "size": 3.72
+    },
+    {
+        "id": 415,
+        "name": "[马力欧与路易吉RPG 兄弟齐航！].xci",
+        "size": 14.88
+    },
+    {
+        "id": 416,
+        "name": "[曼岛TT赛事：边缘竞速].xci",
+        "size": 14.88
+    },
+    {
+        "id": 417,
+        "name": "[曼岛TT赛事：边缘竞速2].xci",
+        "size": 14.88
+    },
+    {
+        "id": 418,
+        "name": "[漫威VS卡普空格斗合集].xci",
+        "size": 3.52
+    },
+    {
+        "id": 419,
+        "name": "[漫威终极联盟3：黑暗教团].xci",
+        "size": 14.88
+    },
+    {
+        "id": 420,
+        "name": "[猫咪斗恶龙1+2].xci",
+        "size": 1.72
+    },
+    {
+        "id": 421,
+        "name": "[猫咪斗恶龙3].xci",
+        "size": 1.28
+    },
+    {
+        "id": 422,
+        "name": "[貓咪大戰爭].xci",
+        "size": 0.97
+    },
+    {
+        "id": 423,
+        "name": "[毛线小精灵2].xci",
+        "size": 3.72
+    },
+    {
+        "id": 424,
+        "name": "[美国逃亡者].xci",
+        "size": 1.94
+    },
+    {
+        "id": 425,
+        "name": "[美国职业棒球大联盟23.xci",
+        "size": 7.44
+    },
+    {
+        "id": 426,
+        "name": "[萌猫公园1+2].xci",
+        "size": 0.71
+    },
+    {
+        "id": 427,
+        "name": "[盟军敢死队3].xci",
+        "size": 3.72
+    },
+    {
+        "id": 428,
+        "name": "[梦H朋友].xci",
+        "size": 1.86
+    },
+    {
+        "id": 429,
+        "name": "[梦幻模拟战1+2].xci",
+        "size": 1.98
+    },
+    {
+        "id": 430,
+        "name": "[迷失].xci",
+        "size": 7.44
+    },
+    {
+        "id": 431,
+        "name": "[迷途猫 流浪猫].xci",
+        "size": 5.76
+    },
+    {
+        "id": 432,
+        "name": "[米老鼠传奇 重制版].xci",
+        "size": 11.08
+    },
+    {
+        "id": 433,
+        "name": "[密室逃脱 牵动命运的35道谜题].xci",
+        "size": 2.22
+    },
+    {
+        "id": 434,
+        "name": "[妙厨老妈2：美味巨星].xci",
+        "size": 3.72
+    },
+    {
+        "id": 435,
+        "name": "[咩咩启示录]（三文件）.xci",
+        "size": 1.86
+    },
+    {
+        "id": 436,
+        "name": "[命运九重奏].xci",
+        "size": 10.43
+    },
+    {
+        "id": 437,
+        "name": "[命运石之门 精英].xci",
+        "size": 7.44
+    },
+    {
+        "id": 438,
+        "name": "[命运之夜]（三文件）.xci",
+        "size": 10.21
+    },
+    {
+        "id": 439,
+        "name": "[模拟老大Y]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 440,
+        "name": "[模拟农场].xci",
+        "size": 3.07
+    },
+    {
+        "id": 441,
+        "name": "[模拟山羊3].xci",
+        "size": 3.72
+    },
+    {
+        "id": 442,
+        "name": "[模拟狩猎2 打猎].xci",
+        "size": 4.54
+    },
+    {
+        "id": 443,
+        "name": "[魔法气泡VS俄罗斯方块].xci",
+        "size": 1.86
+    },
+    {
+        "id": 444,
+        "name": "[魔法气泡VS俄罗斯方块2].xci",
+        "size": 1.86
+    },
+    {
+        "id": 445,
+        "name": "[魔法使之夜].xci",
+        "size": 29.75
+    },
+    {
+        "id": 446,
+        "name": "[魔剑物语 铸剑物语的精神续作].xci",
+        "size": 5.41
+    },
+    {
+        "id": 447,
+        "name": "[魔界战记4].xci",
+        "size": 4.44
+    },
+    {
+        "id": 448,
+        "name": "[魔界战记5].xci",
+        "size": 6.29
+    },
+    {
+        "id": 449,
+        "name": "[魔界战记6].xci",
+        "size": 2.65
+    },
+    {
+        "id": 450,
+        "name": "[魔女之泉3 重制版 玩偶小魔女艾露迪的故事].xci",
+        "size": 1.86
+    },
+    {
+        "id": 451,
+        "name": "[魔女之泉R].xci",
+        "size": 7.44
+    },
+    {
+        "id": 452,
+        "name": "[末日求生].xci",
+        "size": 1.87
+    },
+    {
+        "id": 453,
+        "name": "[牧场物语 橄榄镇与希望的大地].xci",
+        "size": 3.72
+    },
+    {
+        "id": 454,
+        "name": "[牧场物语 美丽人生].xci",
+        "size": 1.27
+    },
+    {
+        "id": 455,
+        "name": "[牧场物语 重聚矿石镇].xci",
+        "size": 1.86
+    },
+    {
+        "id": 456,
+        "name": "[那由多之轨迹 星之彼方].xci",
+        "size": 3.72
+    },
+    {
+        "id": 457,
+        "name": "[内裤派对].xci",
+        "size": 1.86
+    },
+    {
+        "id": 458,
+        "name": "[尼尔 机械纪元 寄叶终结版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 459,
+        "name": "[尼克卡通卡丁车3：史莱姆赛道].xci",
+        "size": 7.44
+    },
+    {
+        "id": 460,
+        "name": "[你裁我剪！斯尼帕Plus].xci",
+        "size": 1.86
+    },
+    {
+        "id": 461,
+        "name": "[你好邻居 躲猫猫 捉迷藏].xci",
+        "size": 2.69
+    },
+    {
+        "id": 462,
+        "name": "[逆转裁判123].xci",
+        "size": 3.72
+    },
+    {
+        "id": 463,
+        "name": "[逆转裁判456].xci",
+        "size": 14.88
+    },
+    {
+        "id": 464,
+        "name": "[逆转检事1+2 合集].xci",
+        "size": 7.44
+    },
+    {
+        "id": 465,
+        "name": "[怒之铁拳4]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 466,
+        "name": "[女鬼桥2 释魂路].xci",
+        "size": 6.22
+    },
+    {
+        "id": 467,
+        "name": "[女神异闻录 战略版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 468,
+        "name": "[女神异闻录4 无敌究极后桥背摔].xci",
+        "size": 12.58
+    },
+    {
+        "id": 469,
+        "name": "[女神异闻录5 皇家版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 470,
+        "name": "[女神异闻录P5S].xci",
+        "size": 14.88
+    },
+    {
+        "id": 471,
+        "name": "[啪嗒砰1+2重制版].xci",
+        "size": 1.67
+    },
+    {
+        "id": 472,
+        "name": "[胖次派对+].xci",
+        "size": 1.86
+    },
+    {
+        "id": 473,
+        "name": "[泡泡龙4 伙伴].xci",
+        "size": 1.86
+    },
+    {
+        "id": 474,
+        "name": "[泡泡糖忍战].xci",
+        "size": 2.35
+    },
+    {
+        "id": 475,
+        "name": "[喷射战士2].xci",
+        "size": 3.51
+    },
+    {
+        "id": 476,
+        "name": "[喷射战士3 DLC同捆版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 477,
+        "name": "[皮克敏1+2].xci",
+        "size": 3.72
+    },
+    {
+        "id": 478,
+        "name": "[皮克敏3 豪华版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 479,
+        "name": "[皮克敏4].xci",
+        "size": 14.88
+    },
+    {
+        "id": 480,
+        "name": "[毗卢遮那战姬 一树之风].xci",
+        "size": 6.73
+    },
+    {
+        "id": 481,
+        "name": "[毗卢遮那战姬 源平飞花梦想]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 482,
+        "name": "[奇奇怪界 黑斗篷之谜].xci",
+        "size": 1.28
+    },
+    {
+        "id": 483,
+        "name": "[奇异人生：双重曝光].xci",
+        "size": 14.08
+    },
+    {
+        "id": 484,
+        "name": "[旗帜的传说 三部曲].xci",
+        "size": 7.44
+    },
+    {
+        "id": 485,
+        "name": "[汽车总动员3 英文版].xci",
+        "size": 4.58
+    },
+    {
+        "id": 486,
+        "name": "[前进！奇诺比奥队长].xci",
+        "size": 1.86
+    },
+    {
+        "id": 487,
+        "name": "[前线任务1重制版].xci",
+        "size": 6.52
+    },
+    {
+        "id": 488,
+        "name": "[前线任务2重制版].xci",
+        "size": 8.5
+    },
+    {
+        "id": 489,
+        "name": "[虔诚之花的晚钟1925].xci",
+        "size": 7.44
+    },
+    {
+        "id": 490,
+        "name": "[潜水员戴夫 完全版].xci",
+        "size": 3.72
+    },
+    {
+        "id": 491,
+        "name": "[枪弹突击小妖精].xci",
+        "size": 3.72
+    },
+    {
+        "id": 492,
+        "name": "[秋之回忆1-7合集 上卷].xci",
+        "size": 14.88
+    },
+    {
+        "id": 493,
+        "name": "[秋之回忆1-7合集 下卷].xci",
+        "size": 14.88
+    },
+    {
+        "id": 494,
+        "name": "[秋之回忆8无垢少女].xci",
+        "size": 7.44
+    },
+    {
+        "id": 495,
+        "name": "[秋之回忆9星穹之下]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 496,
+        "name": "[去度假].xci",
+        "size": 9.19
+    },
+    {
+        "id": 497,
+        "name": "[全明星水果赛车 水果卡丁车].xci",
+        "size": 3.55
+    },
+    {
+        "id": 498,
+        "name": "[全员恶人].xci",
+        "size": 2.45
+    },
+    {
+        "id": 499,
+        "name": "[全职猎人 念力冲击].xci",
+        "size": 2.13
+    },
+    {
+        "id": 500,
+        "name": "[拳皇13 全球对决].xci",
+        "size": 3.72
+    },
+    {
+        "id": 501,
+        "name": "[热血三国志].xci",
+        "size": 7.44
+    },
+    {
+        "id": 502,
+        "name": "[热血三国志2乱世风云].xci",
+        "size": 3.46
+    },
+    {
+        "id": 503,
+        "name": "[热血少女2]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 504,
+        "name": "[热血物语SP].xci",
+        "size": 1.09
+    },
+    {
+        "id": 505,
+        "name": "[热血系列与街机经典收藏版].xci",
+        "size": 0.85
+    },
+    {
+        "id": 506,
+        "name": "[热血硬派物语 热血街头大乱斗].xci",
+        "size": 0.82
+    },
+    {
+        "id": 507,
+        "name": "[人类 一败涂地].xci",
+        "size": 3.72
+    },
+    {
+        "id": 508,
+        "name": "[人猿传说].xci",
+        "size": 1.86
+    },
+    {
+        "id": 509,
+        "name": "[忍者龙剑传 大师合集].xci",
+        "size": 14.88
+    },
+    {
+        "id": 510,
+        "name": "[忍者神龟 施耐德的复仇 周年纪念版 含DLC].xci",
+        "size": 1.86
+    },
+    {
+        "id": 511,
+        "name": "[忍者信使].xci",
+        "size": 3.72
+    },
+    {
+        "id": 512,
+        "name": "[任天堂Switch运动].xci",
+        "size": 3.72
+    },
+    {
+        "id": 513,
+        "name": "[任天堂明星大乱斗 特别版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 514,
+        "name": "[任天堂世界锦标赛 FC世界大会].xci",
+        "size": 1.86
+    },
+    {
+        "id": 515,
+        "name": "[塞尔达传说 旷野之息 DLC同捆版].xci",
+        "size": 29.75
+    },
+    {
+        "id": 516,
+        "name": "[塞尔达传说 天空之剑 HD].xci",
+        "size": 7.44
+    },
+    {
+        "id": 517,
+        "name": "[塞尔达传说 王国之泪].xci",
+        "size": 29.75
+    },
+    {
+        "id": 518,
+        "name": "[塞尔达传说 织梦岛].xci",
+        "size": 7.44
+    },
+    {
+        "id": 519,
+        "name": "[塞尔达传说 智慧的再现].xci",
+        "size": 5.77
+    },
+    {
+        "id": 520,
+        "name": "[塞尔达无双 海拉尔全明星 豪华版].xci",
+        "size": 12.68
+    },
+    {
+        "id": 521,
+        "name": "[塞尔达无双 灾厄启示录].xci",
+        "size": 14.88
+    },
+    {
+        "id": 522,
+        "name": "[赛马娘].xci",
+        "size": 3.61
+    },
+    {
+        "id": 523,
+        "name": "[三国无双8].xci",
+        "size": 14.21
+    },
+    {
+        "id": 524,
+        "name": "[三国志13 威力加强版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 525,
+        "name": "[三国志14 威力加强版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 526,
+        "name": "[三国志8 重制版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 527,
+        "name": "[三角战略].xci",
+        "size": 7.44
+    },
+    {
+        "id": 528,
+        "name": "[三位一体5].xci",
+        "size": 7.44
+    },
+    {
+        "id": 529,
+        "name": "[杀戮尖塔].xci",
+        "size": 1.86
+    },
+    {
+        "id": 530,
+        "name": "[沙石镇时光].xci",
+        "size": 5.5
+    },
+    {
+        "id": 531,
+        "name": "[山地车极限运动 下坡竞速王者].xci",
+        "size": 1.77
+    },
+    {
+        "id": 532,
+        "name": "[闪乱神乐 桃色弹珠台].xci",
+        "size": 7.44
+    },
+    {
+        "id": 533,
+        "name": "[闪乱神乐忍纾压].xci",
+        "size": 14.88
+    },
+    {
+        "id": 534,
+        "name": "[上古卷軸5].xci",
+        "size": 14.68
+    },
+    {
+        "id": 535,
+        "name": "[少女射击2].xci",
+        "size": 3.83
+    },
+    {
+        "id": 536,
+        "name": "[少女与战车梦幻大会战]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 537,
+        "name": "[深海迷航 合集].xci",
+        "size": 14.88
+    },
+    {
+        "id": 538,
+        "name": "[深夏时光！二十世纪的暑假]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 539,
+        "name": "[神臂斗士ARMS].xci",
+        "size": 3.72
+    },
+    {
+        "id": 540,
+        "name": "[神界原罪].xci",
+        "size": 14.88
+    },
+    {
+        "id": 541,
+        "name": "[神界原罪2]（三文件）.xci",
+        "size": 14.88
+    },
+    {
+        "id": 542,
+        "name": "[神领编年史].xci",
+        "size": 9.55
+    },
+    {
+        "id": 543,
+        "name": "[神奇101 复刻版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 544,
+        "name": "[神奇小子：龙之陷阱.xci",
+        "size": 1.86
+    },
+    {
+        "id": 545,
+        "name": "[生化变种].xci",
+        "size": 7.44
+    },
+    {
+        "id": 546,
+        "name": "[生化奇兵 合集 ].xci",
+        "size": 14.88
+    },
+    {
+        "id": 547,
+        "name": "[生化危机 0].xci",
+        "size": 14.88
+    },
+    {
+        "id": 548,
+        "name": "[生化危机 启示录].xci",
+        "size": 14.88
+    },
+    {
+        "id": 549,
+        "name": "[生化危机4].xci",
+        "size": 14.88
+    },
+    {
+        "id": 550,
+        "name": "[圣剑传说3 重制版 ].xci",
+        "size": 14.88
+    },
+    {
+        "id": 551,
+        "name": "[圣剑传说合集+].xci",
+        "size": 1.86
+    },
+    {
+        "id": 552,
+        "name": "[圣兽之王].xci",
+        "size": 3.72
+    },
+    {
+        "id": 553,
+        "name": "[圣塔神记].xci",
+        "size": 3.72
+    },
+    {
+        "id": 554,
+        "name": "[失忆症].xci",
+        "size": 7.44
+    },
+    {
+        "id": 555,
+        "name": "[师父].xci",
+        "size": 7.44
+    },
+    {
+        "id": 556,
+        "name": "[十三机兵防卫圈].xci",
+        "size": 7.44
+    },
+    {
+        "id": 557,
+        "name": "[石河伦吾和他的朋友们].xci",
+        "size": 0.66
+    },
+    {
+        "id": 558,
+        "name": "[时空勇士].xci",
+        "size": 7.44
+    },
+    {
+        "id": 559,
+        "name": "[时尚梦想家]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 560,
+        "name": "[时尚造梦].xci",
+        "size": 7.44
+    },
+    {
+        "id": 561,
+        "name": "[食人鲨].xci",
+        "size": 4.69
+    },
+    {
+        "id": 562,
+        "name": "[世嘉MD 创世纪经典游戏合集].xci",
+        "size": 1.54
+    },
+    {
+        "id": 563,
+        "name": "[世界末日俱乐部].xci",
+        "size": 7.44
+    },
+    {
+        "id": 564,
+        "name": "[世界树的迷宫宫合集]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 565,
+        "name": "[世界树迷宫2 诸王的圣杯].xci",
+        "size": 3.72
+    },
+    {
+        "id": 566,
+        "name": "[世界游戏大全51].xci",
+        "size": 3.72
+    },
+    {
+        "id": 567,
+        "name": "[侍道外伝 刀神].xci",
+        "size": 2.1
+    },
+    {
+        "id": 568,
+        "name": "[侍魂 晓].xci",
+        "size": 14.88
+    },
+    {
+        "id": 569,
+        "name": "[噬神者3].xci",
+        "size": 14.88
+    },
+    {
+        "id": 570,
+        "name": "[收获日2].xci",
+        "size": 10.14
+    },
+    {
+        "id": 571,
+        "name": "[数码宝贝 绝境求生].xci",
+        "size": 7.44
+    },
+    {
+        "id": 572,
+        "name": "[数码宝贝]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 573,
+        "name": "[数码宝贝物语 网络侦探骇客追忆].xci",
+        "size": 7.44
+    },
+    {
+        "id": 574,
+        "name": "[双点校园].xci",
+        "size": 2.12
+    },
+    {
+        "id": 575,
+        "name": "[双点医院 DLC同捆版].xci",
+        "size": 3.72
+    },
+    {
+        "id": 576,
+        "name": "[双截龙 经典游戏合集].xci",
+        "size": 2.94
+    },
+    {
+        "id": 577,
+        "name": "[双截龙]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 578,
+        "name": "[双截龙外传 双龙出海]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 579,
+        "name": "[双人成行](只能玩到第四关).xci",
+        "size": 7.44
+    },
+    {
+        "id": 580,
+        "name": "[水晶传说].xci",
+        "size": 7.44
+    },
+    {
+        "id": 581,
+        "name": "[睡M之中Z强版]（三文件）.xci",
+        "size": 1.86
+    },
+    {
+        "id": 582,
+        "name": "[死或生沙滩排球3 绯红].xci",
+        "size": 9.91
+    },
+    {
+        "id": 583,
+        "name": "[死神诡计：来生].xci",
+        "size": 1.86
+    },
+    {
+        "id": 584,
+        "name": "[死亡细胞 DLC同捆版].xci",
+        "size": 3.72
+    },
+    {
+        "id": 585,
+        "name": "[死亡之屋 重制版 双人射击].xci",
+        "size": 3.46
+    },
+    {
+        "id": 586,
+        "name": "[苏菲的炼金工房～不可思议书的炼金术士～ DX].xci",
+        "size": 7.44
+    },
+    {
+        "id": 587,
+        "name": "[索尼克 力量].xci",
+        "size": 7.44
+    },
+    {
+        "id": 588,
+        "name": "[索尼克 未知边境].xci",
+        "size": 14.88
+    },
+    {
+        "id": 589,
+        "name": "[索尼克X夏特 世代重启].xci",
+        "size": 13.41
+    },
+    {
+        "id": 590,
+        "name": "[拓麻歌子开心镇 塔麻歌子].xci",
+        "size": 1.32
+    },
+    {
+        "id": 591,
+        "name": "[太阁立志传5DX].xci",
+        "size": 3.63
+    },
+    {
+        "id": 592,
+        "name": "[太鼓达人 咚咚雷音祭].xci",
+        "size": 3.55
+    },
+    {
+        "id": 593,
+        "name": "[太鼓达人 咚咔！二合一大冒险].xci",
+        "size": 7.44
+    },
+    {
+        "id": 594,
+        "name": "[太鼓达人].xci",
+        "size": 3.72
+    },
+    {
+        "id": 595,
+        "name": "[泰拉瑞亚].xci",
+        "size": 1.86
+    },
+    {
+        "id": 596,
+        "name": "[泰坦之旅 不朽之旅].xci",
+        "size": 7.37
+    },
+    {
+        "id": 597,
+        "name": "[逃脱诡计 35个致命谜团].xci",
+        "size": 2.22
+    },
+    {
+        "id": 598,
+        "name": "[桃太郎电铁 昭和平成令和定番 亚洲版].xci",
+        "size": 3.72
+    },
+    {
+        "id": 599,
+        "name": "[特级厨师EPICCHEF].xci",
+        "size": 4.28
+    },
+    {
+        "id": 600,
+        "name": "[体感嘉年华].xci",
+        "size": 3.72
+    },
+    {
+        "id": 601,
+        "name": "[天国拯救 皇家版].xci",
+        "size": 14.46
+    },
+    {
+        "id": 602,
+        "name": "[天使帝国Ⅳ].xci",
+        "size": 3.72
+    },
+    {
+        "id": 603,
+        "name": "[天使之王].xci",
+        "size": 7.44
+    },
+    {
+        "id": 604,
+        "name": "[天使之王梅塔特隆的飞升高清复刻].xci",
+        "size": 7.44
+    },
+    {
+        "id": 605,
+        "name": "[天穗之咲稻姬].xci",
+        "size": 7.44
+    },
+    {
+        "id": 606,
+        "name": "[天外世界].xci",
+        "size": 14.88
+    },
+    {
+        "id": 607,
+        "name": "[天狱乱斗].xci",
+        "size": 6.84
+    },
+    {
+        "id": 608,
+        "name": "[挺进地牢 逃离地牢 捆绑包].xci",
+        "size": 1.86
+    },
+    {
+        "id": 609,
+        "name": "[恸哭之星].xci",
+        "size": 7.44
+    },
+    {
+        "id": 610,
+        "name": "[兔兔的秘密花园].xci",
+        "size": 3.72
+    },
+    {
+        "id": 611,
+        "name": "[外卡橄榄球].xci",
+        "size": 7.44
+    },
+    {
+        "id": 612,
+        "name": "[汪汪队立大功：出发救援].xci",
+        "size": 1.86
+    },
+    {
+        "id": 613,
+        "name": "[汪汪队立大功2：拯救冒险湾].xci",
+        "size": 3.72
+    },
+    {
+        "id": 614,
+        "name": "[汪汪队立大功3 电影：冒险城市在召唤].xci",
+        "size": 3.72
+    },
+    {
+        "id": 615,
+        "name": "[汪汪队立大功4：大奖赛].xci",
+        "size": 3.72
+    },
+    {
+        "id": 616,
+        "name": "[汪汪队立大功5：世界].xci",
+        "size": 3.72
+    },
+    {
+        "id": 617,
+        "name": "[亡灵G计 来世].xci",
+        "size": 1.86
+    },
+    {
+        "id": 618,
+        "name": "[王国：两位君主].xci",
+        "size": 3.72
+    },
+    {
+        "id": 619,
+        "name": "[王国之心 回忆的旋律].xci",
+        "size": 7.44
+    },
+    {
+        "id": 620,
+        "name": "[王牌钓手].xci",
+        "size": 3.09
+    },
+    {
+        "id": 621,
+        "name": "[网球世界巡回赛].xci",
+        "size": 7.44
+    },
+    {
+        "id": 622,
+        "name": "[网球世界巡回赛2].xci",
+        "size": 4.03
+    },
+    {
+        "id": 623,
+        "name": "[维加斯派对].xci",
+        "size": 1.86
+    },
+    {
+        "id": 624,
+        "name": "[维克多弗兰 过度杀戮].xci",
+        "size": 3.61
+    },
+    {
+        "id": 625,
+        "name": "[未命名的鹅作剧].xci",
+        "size": 1.86
+    },
+    {
+        "id": 626,
+        "name": "[蔚蓝].xci",
+        "size": 1.89
+    },
+    {
+        "id": 627,
+        "name": "[文明6].xci",
+        "size": 7.44
+    },
+    {
+        "id": 628,
+        "name": "[文明7].xci",
+        "size": 5.05
+    },
+    {
+        "id": 629,
+        "name": "[我的好友小猪佩奇].xci",
+        "size": 2.7
+    },
+    {
+        "id": 630,
+        "name": "[我的女朋友是人鱼公主].xci",
+        "size": 1.86
+    },
+    {
+        "id": 631,
+        "name": "[我的朋友佩德罗.xci",
+        "size": 6.22
+    },
+    {
+        "id": 632,
+        "name": "[我的世界 传奇版].xci",
+        "size": 7.0
+    },
+    {
+        "id": 633,
+        "name": "[我的世界 地下城 DLC同捆版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 634,
+        "name": "[我的世界 基岩版].xci",
+        "size": 1.86
+    },
+    {
+        "id": 635,
+        "name": "[我的舞蹈教室].xci",
+        "size": 1.67
+    },
+    {
+        "id": 636,
+        "name": "[我的英雄学院 唯我正义].xci",
+        "size": 3.72
+    },
+    {
+        "id": 637,
+        "name": "[我的英雄学院 唯我正义2].xci",
+        "size": 7.22
+    },
+    {
+        "id": 638,
+        "name": "[我们学校的ZHAN斗+保龄球+躲避球].xci",
+        "size": 1.24
+    },
+    {
+        "id": 639,
+        "name": "[我是大厨师]（三文件）.xci",
+        "size": 3.66
+    },
+    {
+        "id": 640,
+        "name": "[巫师3：狂猎 完全版].xci",
+        "size": 29.75
+    },
+    {
+        "id": 641,
+        "name": "[无路之旅].xci",
+        "size": 3.72
+    },
+    {
+        "id": 642,
+        "name": "[无人深空].xci",
+        "size": 3.47
+    },
+    {
+        "id": 643,
+        "name": "[无双大蛇2 终极版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 644,
+        "name": "[无双大蛇3].xci",
+        "size": 14.88
+    },
+    {
+        "id": 645,
+        "name": "[无限神速斩 勇者斗恶龙达伊的冒险].xci",
+        "size": 7.44
+    },
+    {
+        "id": 646,
+        "name": "[无主之地 年度版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 647,
+        "name": "[无主之地3].xci",
+        "size": 7.44
+    },
+    {
+        "id": 648,
+        "name": "[吾家健身趣-4分钟锻炼全身-].xci",
+        "size": 1.93
+    },
+    {
+        "id": 649,
+        "name": "[武士杰克：时空之战.xci",
+        "size": 7.44
+    },
+    {
+        "id": 650,
+        "name": "[舞力全开2017].xci",
+        "size": 14.88
+    },
+    {
+        "id": 651,
+        "name": "[舞力全开2018].xci",
+        "size": 7.44
+    },
+    {
+        "id": 652,
+        "name": "[舞力全开2019].xci",
+        "size": 7.44
+    },
+    {
+        "id": 653,
+        "name": "[舞力全开2020].xci",
+        "size": 7.44
+    },
+    {
+        "id": 654,
+        "name": "[舞力全开2021].xci",
+        "size": 7.44
+    },
+    {
+        "id": 655,
+        "name": "[舞力全开2022].xci",
+        "size": 7.44
+    },
+    {
+        "id": 656,
+        "name": "[物质世界：决定].xci",
+        "size": 7.44
+    },
+    {
+        "id": 657,
+        "name": "[夕鬼].xci",
+        "size": 3.72
+    },
+    {
+        "id": 658,
+        "name": "[吸血鬼].xci",
+        "size": 7.21
+    },
+    {
+        "id": 659,
+        "name": "[侠盗飞车：三部曲-最终版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 660,
+        "name": "[夏莉的炼金工房～黄昏海洋的炼金术士DX].xci",
+        "size": 7.44
+    },
+    {
+        "id": 661,
+        "name": "[项圈 x 恶意 无限].xci",
+        "size": 7.44
+    },
+    {
+        "id": 662,
+        "name": "[项圈 x 恶意].xci",
+        "size": 7.44
+    },
+    {
+        "id": 663,
+        "name": "[消逝的光芒 白金版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 664,
+        "name": "[小丑牌].xci",
+        "size": 1.86
+    },
+    {
+        "id": 665,
+        "name": "[小骨 英雄杀手].xci",
+        "size": 3.67
+    },
+    {
+        "id": 666,
+        "name": "[小狐狸冒险 丘尼卡传说].xci",
+        "size": 3.72
+    },
+    {
+        "id": 667,
+        "name": "[小小伙伴 宠物猫狗].xci",
+        "size": 4.71
+    },
+    {
+        "id": 668,
+        "name": "[小小伙伴 狗狗小岛].xci",
+        "size": 1.38
+    },
+    {
+        "id": 669,
+        "name": "[小小梦魇1豪华版].xci",
+        "size": 3.72
+    },
+    {
+        "id": 670,
+        "name": "[小小梦魇2].xci",
+        "size": 7.44
+    },
+    {
+        "id": 671,
+        "name": "[小镇英雄].xci",
+        "size": 2.35
+    },
+    {
+        "id": 672,
+        "name": "[小猪佩奇 我的朋友 DLC同捆版].xci",
+        "size": 3.72
+    },
+    {
+        "id": 673,
+        "name": "[小猪佩奇：世界大冒险].xci",
+        "size": 7.44
+    },
+    {
+        "id": 674,
+        "name": "[心渊梦境].xci",
+        "size": 3.72
+    },
+    {
+        "id": 675,
+        "name": "[新假面骑士 乱舞].xci",
+        "size": 1.36
+    },
+    {
+        "id": 676,
+        "name": "[信长之野望 新生].xci",
+        "size": 4.0
+    },
+    {
+        "id": 677,
+        "name": "[星露谷物语].xci",
+        "size": 1.86
+    },
+    {
+        "id": 678,
+        "name": "[星球大战 极速飞梭].xci",
+        "size": 0.6
+    },
+    {
+        "id": 679,
+        "name": "[星球大战 极速飞梭+共和国突击队合集].xci",
+        "size": 3.72
+    },
+    {
+        "id": 680,
+        "name": "[星之海洋 第二个故事R].xci",
+        "size": 14.88
+    },
+    {
+        "id": 681,
+        "name": "[星之卡比 wii豪华版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 682,
+        "name": "[星之卡比 探索发现].xci",
+        "size": 7.44
+    },
+    {
+        "id": 683,
+        "name": "[星之卡比 新星同盟].xci",
+        "size": 3.72
+    },
+    {
+        "id": 684,
+        "name": "[行尸走肉：最终季].xci",
+        "size": 3.72
+    },
+    {
+        "id": 685,
+        "name": "[杏林物语].xci",
+        "size": 1.86
+    },
+    {
+        "id": 686,
+        "name": "[幸运之杖 R].xci",
+        "size": 7.44
+    },
+    {
+        "id": 687,
+        "name": "[熊与早餐].xci",
+        "size": 3.72
+    },
+    {
+        "id": 688,
+        "name": "[修道院 破碎的瓷器].xci",
+        "size": 3.6
+    },
+    {
+        "id": 689,
+        "name": "[修道院 受难的父亲].xci",
+        "size": 3.66
+    },
+    {
+        "id": 690,
+        "name": "[轩辕剑3 云和山的彼端].xci",
+        "size": 2.55
+    },
+    {
+        "id": 691,
+        "name": "[轩辕剑7].xci",
+        "size": 14.88
+    },
+    {
+        "id": 692,
+        "name": "[旋转轮胎：泥泞奔驰+].xci",
+        "size": 1.66
+    },
+    {
+        "id": 693,
+        "name": "[雪地奔驰].xci",
+        "size": 3.72
+    },
+    {
+        "id": 694,
+        "name": "[雪人兄弟 特别版].xci",
+        "size": 1.86
+    },
+    {
+        "id": 695,
+        "name": "[血污：夜之仪式].xci",
+        "size": 7.44
+    },
+    {
+        "id": 696,
+        "name": "[巡航爆速Cruis'n Blast].xci",
+        "size": 7.44
+    },
+    {
+        "id": 697,
+        "name": "[循环英雄].xci",
+        "size": 1.86
+    },
+    {
+        "id": 698,
+        "name": "[亚历克斯小子 奇幻世界大冒险].xci",
+        "size": 1.86
+    },
+    {
+        "id": 699,
+        "name": "[盐与避难所].xci",
+        "size": 1.36
+    },
+    {
+        "id": 700,
+        "name": "[妖怪手表 4++：我们仰望着同一片天空].xci",
+        "size": 7.44
+    },
+    {
+        "id": 701,
+        "name": "[妖精的尾巴].xci",
+        "size": 7.44
+    },
+    {
+        "id": 702,
+        "name": "[遥远深空中7]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 703,
+        "name": "[耀西的手工世界].xci",
+        "size": 7.44
+    },
+    {
+        "id": 704,
+        "name": "[夜迴&深夜迴]（三文件）.xci",
+        "size": 1.86
+    },
+    {
+        "id": 705,
+        "name": "[夜迴3].xci",
+        "size": 3.09
+    },
+    {
+        "id": 706,
+        "name": "[夜勤人].xci",
+        "size": 1.86
+    },
+    {
+        "id": 707,
+        "name": "[伊苏10].xci",
+        "size": 7.44
+    },
+    {
+        "id": 708,
+        "name": "[伊苏8 达娜的安魂曲].xci",
+        "size": 14.88
+    },
+    {
+        "id": 709,
+        "name": "[伊苏9 怪人之夜].xci",
+        "size": 3.72
+    },
+    {
+        "id": 710,
+        "name": "[以撒的结合 DLC同捆版].xci",
+        "size": 1.86
+    },
+    {
+        "id": 711,
+        "name": "[异度之刃：终极版].xci",
+        "size": 14.88
+    },
+    {
+        "id": 712,
+        "name": "[异度之刃2 黄金之国].xci",
+        "size": 3.72
+    },
+    {
+        "id": 713,
+        "name": "[异度之刃2].xci",
+        "size": 14.88
+    },
+    {
+        "id": 714,
+        "name": "[异度之刃3].xci",
+        "size": 14.88
+    },
+    {
+        "id": 715,
+        "name": "[异度之刃X].xci",
+        "size": 13.86
+    },
+    {
+        "id": 716,
+        "name": "[异界锁链].xci",
+        "size": 14.88
+    },
+    {
+        "id": 717,
+        "name": "[异色代码回忆录 双重记忆 记忆之门AnotherCode].xci",
+        "size": 7.44
+    },
+    {
+        "id": 718,
+        "name": "[异世界配信谎言与真实]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 719,
+        "name": "[异星探险家].xci",
+        "size": 1.86
+    },
+    {
+        "id": 720,
+        "name": "[益智泡泡龙].xci",
+        "size": 1.75
+    },
+    {
+        "id": 721,
+        "name": "[音速小子武力]（三文件）.xci",
+        "size": 6.91
+    },
+    {
+        "id": 722,
+        "name": "[银河战士 密特罗德 究极 复刻].xci",
+        "size": 7.44
+    },
+    {
+        "id": 723,
+        "name": "[银河战士2密特罗德 生存恐惧].xci",
+        "size": 7.44
+    },
+    {
+        "id": 724,
+        "name": "[英雄部再3].xci",
+        "size": 7.18
+    },
+    {
+        "id": 725,
+        "name": "[英雄传说 碧之轨迹 改].xci",
+        "size": 14.88
+    },
+    {
+        "id": 726,
+        "name": "[英雄传说 创之轨迹].xci",
+        "size": 14.88
+    },
+    {
+        "id": 727,
+        "name": "[英雄传说 黎之轨迹].xci",
+        "size": 14.88
+    },
+    {
+        "id": 728,
+        "name": "[英雄传说 黎之轨迹2 绯红原罪].xci",
+        "size": 12.71
+    },
+    {
+        "id": 729,
+        "name": "[英雄传说 零之轨迹改].xci",
+        "size": 7.44
+    },
+    {
+        "id": 730,
+        "name": "[英雄传说 闪之轨迹1 改 - 托尔兹军官学院]].xci",
+        "size": 14.88
+    },
+    {
+        "id": 731,
+        "name": "[英雄传说 闪之轨迹2 改 - 埃雷波尼亚帝国内战].xci",
+        "size": 14.88
+    },
+    {
+        "id": 732,
+        "name": "[英雄传说 闪之轨迹3].xci",
+        "size": 7.08
+    },
+    {
+        "id": 733,
+        "name": "[英雄传说 闪之轨迹4].xci",
+        "size": 14.88
+    },
+    {
+        "id": 734,
+        "name": "[英雄萨姆 合集]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 735,
+        "name": "[影之诗 巅峰对决].xci",
+        "size": 7.44
+    },
+    {
+        "id": 736,
+        "name": "[硬核机甲].xci",
+        "size": 7.44
+    },
+    {
+        "id": 737,
+        "name": "[永恒蔚蓝 流光].xci",
+        "size": 7.44
+    },
+    {
+        "id": 738,
+        "name": "[勇敢小骑士].xci",
+        "size": 14.88
+    },
+    {
+        "id": 739,
+        "name": "[勇气默示录2].xci",
+        "size": 14.88
+    },
+    {
+        "id": 740,
+        "name": "[勇者斗恶龙 创世小玩家2 破坏神席德与空荡岛].xci",
+        "size": 2.07
+    },
+    {
+        "id": 741,
+        "name": "[勇者斗恶龙 怪物仙境].xci",
+        "size": 7.44
+    },
+    {
+        "id": 742,
+        "name": "[勇者斗恶龙 怪物仙境3].xci",
+        "size": 7.44
+    },
+    {
+        "id": 743,
+        "name": "[勇者斗恶龙 寻宝探险团].xci",
+        "size": 3.72
+    },
+    {
+        "id": 744,
+        "name": "[勇者斗恶龙11s ].xci",
+        "size": 14.88
+    },
+    {
+        "id": 745,
+        "name": "[勇者斗恶龙123 合集].xci",
+        "size": 1.16
+    },
+    {
+        "id": 746,
+        "name": "[勇者斗恶龙3 HD-2D 重制版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 747,
+        "name": "[优米雅的炼金工房追忆之炼金术士].xci",
+        "size": 3.93
+    },
+    {
+        "id": 748,
+        "name": "[幽浮2 典藏合集].xci",
+        "size": 6.85
+    },
+    {
+        "id": 749,
+        "name": "[幽灵G计：幻影Z探].xci",
+        "size": 3.72
+    },
+    {
+        "id": 750,
+        "name": "[幽灵诡计 幻影侦探]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 751,
+        "name": "[幽灵诡计].xci",
+        "size": 3.72
+    },
+    {
+        "id": 752,
+        "name": "[幽灵行者].xci",
+        "size": 4.75
+    },
+    {
+        "id": 753,
+        "name": "[尤卡莱莉与无妄巢穴].xci",
+        "size": 3.04
+    },
+    {
+        "id": 754,
+        "name": "[游戏王 决斗者遗产 链接进化].xci",
+        "size": 1.77
+    },
+    {
+        "id": 755,
+        "name": "[游戏王Rush Duel 最强大混战].xci",
+        "size": 3.44
+    },
+    {
+        "id": 756,
+        "name": "[游戏制作车库].xci",
+        "size": 1.32
+    },
+    {
+        "id": 757,
+        "name": "[酉闪町2 昆仑灵动]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 758,
+        "name": "[幼驯染是人鱼姬]（三文件）.xci",
+        "size": 1.86
+    },
+    {
+        "id": 759,
+        "name": "[鱼帆暗涌 钓鱼冒险].xci",
+        "size": 1.14
+    },
+    {
+        "id": 760,
+        "name": "[与魔共舞 我的颂歌].xci",
+        "size": 3.72
+    },
+    {
+        "id": 761,
+        "name": "[与魔共舞].xci",
+        "size": 7.44
+    },
+    {
+        "id": 762,
+        "name": "[雨中冒险 合集].xci",
+        "size": 3.72
+    },
+    {
+        "id": 763,
+        "name": "[浴血黑帮：傀儡师].xci",
+        "size": 1.86
+    },
+    {
+        "id": 764,
+        "name": "[月风魔传：不朽之月1+2].xci",
+        "size": 4.41
+    },
+    {
+        "id": 765,
+        "name": "[越野英雄4].xci",
+        "size": 14.88
+    },
+    {
+        "id": 766,
+        "name": "[云城朋克].xci",
+        "size": 2.85
+    },
+    {
+        "id": 767,
+        "name": "[运动派对].xci",
+        "size": 2.98
+    },
+    {
+        "id": 768,
+        "name": "[在地下城寻求邂逅是否搞错了什么：无限战斗] .xci",
+        "size": 7.44
+    },
+    {
+        "id": 769,
+        "name": "[粘粘世界2].xci",
+        "size": 1.0
+    },
+    {
+        "id": 770,
+        "name": "[战场女武神4].xci",
+        "size": 8.63
+    },
+    {
+        "id": 771,
+        "name": "[战锤40K枪声鲜血和铁拳].xci",
+        "size": 2.55
+    },
+    {
+        "id": 772,
+        "name": "[战国无双：真田丸].xci",
+        "size": 14.88
+    },
+    {
+        "id": 773,
+        "name": "[战国无双4 DX].xci",
+        "size": 14.88
+    },
+    {
+        "id": 774,
+        "name": "[战国无双5].xci",
+        "size": 9.41
+    },
+    {
+        "id": 775,
+        "name": "[战神：Nightwar夜袭&黑夜战争]（三文件）.xci",
+        "size": 3.72
+    },
+    {
+        "id": 776,
+        "name": "[长尾豹马修大冒险].xci",
+        "size": 2.17
+    },
+    {
+        "id": 777,
+        "name": "[这是警察2].xci",
+        "size": 2.81
+    },
+    {
+        "id": 778,
+        "name": "[这是我的战争：完整版].xci",
+        "size": 2.39
+    },
+    {
+        "id": 779,
+        "name": "[侦探俱乐部 笑脸男EMIO].xci",
+        "size": 5.8
+    },
+    {
+        "id": 780,
+        "name": "[真女神转生3 HD重置版].xci",
+        "size": 6.37
+    },
+    {
+        "id": 781,
+        "name": "[真女神转生5].xci",
+        "size": 14.88
+    },
+    {
+        "id": 782,
+        "name": "[真人快打1].xci",
+        "size": 6.24
+    },
+    {
+        "id": 783,
+        "name": "[真人快打11].xci",
+        "size": 7.44
+    },
+    {
+        "id": 784,
+        "name": "[真三国无双7 猛将传].xci",
+        "size": 14.88
+    },
+    {
+        "id": 785,
+        "name": "[真三国无双8 帝国].xci",
+        "size": 14.88
+    },
+    {
+        "id": 786,
+        "name": "[蒸汽监狱].xci",
+        "size": 7.44
+    },
+    {
+        "id": 787,
+        "name": "[整蛊白云].xci",
+        "size": 1.86
+    },
+    {
+        "id": 788,
+        "name": "[植物大战僵尸 和睦小镇].xci",
+        "size": 7.44
+    },
+    {
+        "id": 789,
+        "name": "[纸片马里奥 折纸国王].xci",
+        "size": 7.44
+    },
+    {
+        "id": 790,
+        "name": "[纸片马里奥RPG：千年之门].xci",
+        "size": 7.44
+    },
+    {
+        "id": 791,
+        "name": "[致ming预感2 伪装的祝福].xci",
+        "size": 5.23
+    },
+    {
+        "id": 792,
+        "name": "[终极街头霸王2：最后的挑战者].xci",
+        "size": 3.72
+    },
+    {
+        "id": 793,
+        "name": "[终焉之莉莉 骑士寂夜].xci",
+        "size": 3.72
+    },
+    {
+        "id": 794,
+        "name": "[终远的威尔修].xci",
+        "size": 7.44
+    },
+    {
+        "id": 795,
+        "name": "[重装机兵 异传 M日余S重生]（三文件）.xci",
+        "size": 7.44
+    },
+    {
+        "id": 796,
+        "name": "[重装机兵 异传 重生].xci",
+        "size": 4.24
+    },
+    {
+        "id": 797,
+        "name": "[主厨人生：餐厅模拟器].xci",
+        "size": 3.66
+    },
+    {
+        "id": 798,
+        "name": "[转生成女性向游戏只有毁灭END的坏人大小姐].xci",
+        "size": 3.9
+    },
+    {
+        "id": 799,
+        "name": "[捉鬼敢死队].xci",
+        "size": 3.61
+    },
+    {
+        "id": 800,
+        "name": "[自由战争重制版].xci",
+        "size": 5.0
+    },
+    {
+        "id": 801,
+        "name": "[最终幻想 7 前传：核X危机 重聚].xci",
+        "size": 14.88
+    },
+    {
+        "id": 802,
+        "name": "[最终幻想 世界Maxima加强版].xci",
+        "size": 11.14
+    },
+    {
+        "id": 803,
+        "name": "[最终幻想 水晶编年史 重制版].xci",
+        "size": 3.72
+    },
+    {
+        "id": 804,
+        "name": "[最终幻想：像素复刻版 1~6 合集].xci",
+        "size": 7.44
+    },
+    {
+        "id": 805,
+        "name": "[最终幻想10-12合集重制版].xci",
+        "size": 27.32
+    },
+    {
+        "id": 806,
+        "name": "[最终幻想10高清合集]（三文件）.xci",
+        "size": 29.75
+    },
+    {
+        "id": 807,
+        "name": "[最终幻想12：黄道年代].xci",
+        "size": 14.88
+    },
+    {
+        "id": 808,
+        "name": "[最终幻想7+8].xci",
+        "size": 7.44
+    },
+    {
+        "id": 809,
+        "name": "[最终幻想9].xci",
+        "size": 7.44
+    },
+    {
+        "id": 810,
+        "name": "[最终幻想XX2HD重制版].xci",
+        "size": 29.75
+    },
+    {
+        "id": 811,
+        "name": "[罪恶装备 20周年纪念版].xci",
+        "size": 7.44
+    },
+    {
+        "id": 812,
+        "name": "[尊巴健身].xci",
+        "size": 7.44
+    }
+];
+        
+        // 实际容量映射
+        const capacityMap = {
+            "128": 116,
+            "256": 232,
+            "512": 465
+        };
+        
+        // 页面元素
+        const elements = {
+            selectedSize: document.getElementById("selectedSize"),
+            selectedCount: document.getElementById("selectedCount"),
+            gamesTableBody: document.getElementById("gamesTableBody"),
+            searchBar: document.getElementById("searchBar"),
+            resultContainer: document.getElementById("resultContainer"),
+            resultText: document.getElementById("resultText"),
+            copyBtn: document.getElementById("copyBtn"),
+            resetBtn: document.getElementById("resetBtn"),
+            closeResultBtn: document.getElementById("closeResultBtn"),
+            submitBtn: document.getElementById("submitBtn")
+        };
+        
+        // 应用状态
+        let state = {
+            selectedCapacity: 0,
+            actualCapacity: 0,
+            selectedSize: 0,
+            selectedIds: new Set()
+        };
+        
+        // 初始化
+        function init() {
+            // 渲染游戏列表
+            renderGames();
+            
+            // 设置容量选项事件
+            document.querySelectorAll('.capacity-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    // 移除之前选中的
+                    document.querySelectorAll('.capacity-option').forEach(o => {
+                        o.classList.remove('selected');
+                    });
+                    
+                    // 设置当前选中
+                    option.classList.add('selected');
+                    
+                    // 更新状态
+                    const capacity = option.getAttribute('data-capacity');
+                    state.selectedCapacity = parseInt(capacity);
+                    state.actualCapacity = capacityMap[capacity];
+                    
+                    // 重置选择
+                    resetSelection();
+                });
+            });
+            
+            // 设置默认选中128G
+            document.querySelector('.capacity-option[data-capacity="128"]').click();
+            
+            // 搜索功能
+            elements.searchBar.addEventListener('input', () => {
+                renderGames();
+            });
+            
+            // 重置按钮
+            elements.resetBtn.addEventListener('click', resetSelection);
+            
+            // 提交按钮
+            elements.submitBtn.addEventListener('click', submitSelection);
+            
+            // 复制按钮
+            elements.copyBtn.addEventListener('click', () => {
+                elements.resultText.select();
+                document.execCommand('copy');
+                alert('采购清单已复制到剪贴板！');
+            });
+            
+            // 关闭结果按钮
+            elements.closeResultBtn.addEventListener('click', () => {
+                elements.resultContainer.style.display = 'none';
+            });
+            
+            // 事件委托处理游戏选择
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('game-checkbox')) {
+                    toggleGameSelection(e);
+                }
+            });
+        }
+        
+        // 渲染游戏列表
+        function renderGames() {
+            const keyword = elements.searchBar.value.trim().toLowerCase();
+            elements.gamesTableBody.innerHTML = "";
+            
+            games.forEach(game => {
+                if (game.name.toLowerCase().includes(keyword)) {
+                    const isSelected = state.selectedIds.has(game.id);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <input type="checkbox" class="game-checkbox" 
+                                   data-id="${game.id}" 
+                                   data-size="${game.size}" 
+                                   ${isSelected ? 'checked' : ''}>
+                        </td>
+                        <td>${game.id}</td>
+                        <td>${game.name}</td>
+                        <td class="game-size">${game.size} GB</td>
+                    `;
+                    elements.gamesTableBody.appendChild(row);
+                }
+            });
+        }
+        
+        // 切换游戏选择
+        function toggleGameSelection(e) {
+            const checkbox = e.target;
+            const id = parseInt(checkbox.getAttribute('data-id'));
+            const size = parseFloat(checkbox.getAttribute('data-size'));
+            
+            if (checkbox.checked) {
+                if (state.selectedSize + size > state.actualCapacity) {
+                    alert(`容量不足！无法添加该游戏。剩余容量：${(state.actualCapacity - state.selectedSize).toFixed(1)}GB`);
+                    checkbox.checked = false;
+                    return;
+                }
+                state.selectedIds.add(id);
+                state.selectedSize += size;
+            } else {
+                state.selectedIds.delete(id);
+                state.selectedSize -= size;
+            }
+            
+            updateStats();
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            elements.selectedSize.textContent = state.selectedSize.toFixed(1);
+            elements.selectedCount.textContent = state.selectedIds.size;
+        }
+        
+        // 重置选择
+        function resetSelection() {
+            state.selectedIds.clear();
+            state.selectedSize = 0;
+            updateStats();
+            renderGames();
+        }
+        
+        // 提交选择
+        function submitSelection() {
+            if (state.selectedIds.size === 0) {
+                alert('请先选择游戏！');
+                return;
+            }
+            
+            const idsArray = Array.from(state.selectedIds).sort((a, b) => a - b);
+            const text = `采购清单（共${state.selectedIds.size}款，总容量${state.selectedSize.toFixed(1)}GB）:\n\n序号: ${idsArray.join(', ')}\n\n游戏列表:\n`;
+            
+            // 添加游戏名称
+            let gameList = '';
+            idsArray.forEach(id => {
+                const game = games.find(g => g.id === id);
+                if (game) {
+                    gameList += `[${id}] ${game.name} (${game.size}GB)\n`;
+                }
+            });
+            
+            elements.resultText.value = text + gameList;
+            elements.resultContainer.style.display = 'block';
+            
+            // 滚动到结果区域
+            elements.resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
